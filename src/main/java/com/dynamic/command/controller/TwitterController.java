@@ -22,7 +22,7 @@ public class TwitterController {
 	}
 	
 	@GetMapping(value = "/tweets/{topic}")
-	public ResponseEntity<String> searchTweetsByTopic(@PathVariable String topic){
+	public ResponseEntity<String> searchTweetsByTopic(@PathVariable("topic") String topic){
 		kafkaService.send(topic);
 		return ResponseEntity.ok().body("Topic '"+topic+"' sent will be consumed from tweets on real time");
 	}

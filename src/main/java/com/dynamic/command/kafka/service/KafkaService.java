@@ -33,6 +33,12 @@ public class KafkaService {
 	
 	@Value("${kafka.compressionType}")
 	private String compressionType;
+	
+	@Value("${kafka.topic}")
+	private String kafkaTopic;
+	
+	@Value("${kafka.acks}")
+	private String acks;
 
 	public void send(String topic) {
 		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
@@ -40,10 +46,8 @@ public class KafkaService {
 		
 		client.connect();
 
-		// kafka producer
 		KafkaProducer<String, String> producer = createKafkaProducer();
 
-		// send tweets to kafka
 		while (!client.isDone()) {
 			String msg = null;
 			try {
@@ -55,7 +59,7 @@ public class KafkaService {
 
 			if (msg != null) {
 				logger.info(msg);
-				producer.send(new ProducerRecord<String, String>("twitter_tweets", null, msg), new Callback() {
+				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
 
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
 						if (exception != null) {
@@ -77,7 +81,7 @@ public class KafkaService {
 
 		// create safe
 		properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-		properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
+		properties.setProperty(ProducerConfig.ACKS_CONFIG, acks);
 		properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
 		properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
 
