@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dynamic.command.kafka.service.KafkaService;
+import com.dynamic.command.kafka.service.KafkaServiceAsync;
 
 @RestController
 @RequestMapping("/twitter")
 public class TwitterController {
 	
 	@Autowired
-	private KafkaService kafkaService;
+	private KafkaServiceAsync kafkaService;
 
 	@GetMapping(value = "/status")
 	public ResponseEntity<String> isWorking() {
