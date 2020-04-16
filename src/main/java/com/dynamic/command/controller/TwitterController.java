@@ -12,7 +12,7 @@ import com.dynamic.command.kafka.service.KafkaServiceAsync;
 @RestController
 @RequestMapping("/twitter")
 public class TwitterController {
-	
+
 	@Autowired
 	private KafkaServiceAsync kafkaService;
 
@@ -20,11 +20,11 @@ public class TwitterController {
 	public ResponseEntity<String> isWorking() {
 		return ResponseEntity.ok("Is Working");
 	}
-	
+
 	@GetMapping(value = "/tweets/{topic}")
-	public ResponseEntity<String> searchTweetsByTopic(@PathVariable("topic") String topic){
+	public ResponseEntity<String> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
 		kafkaService.send(topic);
-		return ResponseEntity.ok().body("Topic '"+topic+"' sent will be consumed from tweets on real time");
+		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
 	}
 
 }
