@@ -35,8 +35,8 @@ public class KafkaService {
 	public void send(String topic) {
 		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 		Client client = twitterClient.createTwitterClient(msgQueue, topic);
-		
 		client.connect();
+		logger.info("Connected to Twitter client.");
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 

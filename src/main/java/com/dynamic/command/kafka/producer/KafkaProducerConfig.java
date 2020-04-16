@@ -44,7 +44,7 @@ public class KafkaProducerConfig {
 
 		// create Producer
 		KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
-		logger.info("Setting Kafka Producer created.");
+		logger.info("Kafka Producer created.");
 		return producer;
 	}
 }

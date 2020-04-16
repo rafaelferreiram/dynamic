@@ -56,6 +56,7 @@ public class TwitterClient {
 				.processor(new StringDelimitedProcessor(msgQueue));
 
 		Client hosebirdClient = builder.build();
+		logger.info("Twitter Client created successfully.");
 		return hosebirdClient;
 	}
 
