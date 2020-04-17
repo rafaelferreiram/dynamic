@@ -43,5 +43,15 @@ public class TwitterController {
 		}
 		return ResponseEntity.ok().body(allTopics);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@GetMapping(value = "/tweets/list/actives")
+	public ResponseEntity getActivesTweetTopics(){
+		List<TweetTopicModel> activeTopics = mongoService.findAllTopics();
+		if(activeTopics.isEmpty()) {
+			return ResponseEntity.badRequest().body("No Active Tweet Topics found.");
+		}
+		return ResponseEntity.ok().body(activeTopics);
+	}
 
 }

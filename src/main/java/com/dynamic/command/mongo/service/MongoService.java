@@ -30,4 +30,10 @@ public class MongoService {
 	public List<TweetTopicModel> findAllTopics(){
 		return repository.findAll();
 	}
+	
+	public List<TweetTopicModel> findActiveTopics(){
+		String active = "yes";
+		return repository.findActiveTopics(active);
+	}
+	
 }
