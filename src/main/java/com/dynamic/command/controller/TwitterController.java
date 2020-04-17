@@ -25,7 +25,7 @@ public class TwitterController {
 
 	@GetMapping(value = "/status")
 	public ResponseEntity<String> isWorking() {
-		return ResponseEntity.ok("Is Working");
+		return ResponseEntity.ok("Is Working...");
 	}
 
 	@GetMapping(value = "/tweets/{topic}")
