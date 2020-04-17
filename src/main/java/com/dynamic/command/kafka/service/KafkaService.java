@@ -31,6 +31,8 @@ public class KafkaService {
 	
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
+	
+	private boolean active = true;
 
 	public void send(String topic) {
 		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
@@ -40,7 +42,7 @@ public class KafkaService {
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
-		while (!client.isDone()) {
+		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
 				msg = msgQueue.poll(5, TimeUnit.SECONDS);
@@ -65,6 +67,13 @@ public class KafkaService {
 		
 	}
 
-	
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 
 }

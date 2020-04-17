@@ -31,7 +31,7 @@ public class KafkaServiceAsync {
 	}
 
 	public void deactivate(String topic) {
-		
+		service.setActive(false);
 	}
 
 	
