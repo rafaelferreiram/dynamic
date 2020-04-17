@@ -12,4 +12,7 @@ public interface TweetTopicRepository extends MongoRepository<TweetTopicModel, S
 	@Query("{ 'active': ?0 }")
 	List<TweetTopicModel> findActiveTopics(String active);
 
+	@Query("{ 'topicName': ?0 }")
+	TweetTopicModel findByTopicName(String topic);
+
 }

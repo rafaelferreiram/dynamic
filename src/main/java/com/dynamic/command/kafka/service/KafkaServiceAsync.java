@@ -20,8 +20,15 @@ public class KafkaServiceAsync {
 	
 	@Async
 	public void send(String topic) {
-		TweetTopicModel tweetTopic = new TweetTopicModel(topic, new Date().toString(), "yes");
-		mongoService.save(tweetTopic);
+		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
+		if(topicFound == null) {
+			mongoService.saveNewTopic(topic);
+		}else {
+			topicFound.setSearchDate(new Date().toString());
+			mongoService.update(topicFound);
+		}
 		service.send(topic);
 	}
+
+	
 }

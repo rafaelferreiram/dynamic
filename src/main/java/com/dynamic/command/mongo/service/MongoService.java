@@ -1,5 +1,6 @@
 package com.dynamic.command.mongo.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,15 +19,6 @@ public class MongoService {
 	@Autowired
 	private TweetTopicRepository repository;
 	
-	public void save(TweetTopicModel tweetTopic) {
-		try {
-			repository.save(tweetTopic);
-			logger.info("Tweet Topic savend on MongoDB successfully!");
-		} catch (Exception e) {
-			logger.error("Error when saving topic on MongoDB.",e.getMessage());
-		}
-	}
-	
 	public List<TweetTopicModel> findAllTopics(){
 		return repository.findAll();
 	}
@@ -34,6 +26,29 @@ public class MongoService {
 	public List<TweetTopicModel> findActiveTopics(){
 		String active = "yes";
 		return repository.findActiveTopics(active);
+	}
+
+	public TweetTopicModel findByTopicName(String topic) {
+		return repository.findByTopicName(topic);
+	}
+
+	public void update(TweetTopicModel tweetTopic) {
+		try {
+			repository.save(tweetTopic);
+			logger.info("Tweet Topic updated on MongoDB successfully!");
+		} catch (Exception e) {
+			logger.error("Error when updating topic on MongoDB.",e.getMessage());
+		}
+	}
+
+	public void saveNewTopic(String topic) {
+		try {
+			TweetTopicModel tweetTopic = new TweetTopicModel(topic, new Date().toString(), "yes");		
+			repository.save(tweetTopic);
+			logger.info("Tweet Topic saved on MongoDB successfully!");
+		} catch (Exception e) {
+			logger.error("Error when saving topic on MongoDB.",e.getMessage());
+		}
 	}
 	
 }
