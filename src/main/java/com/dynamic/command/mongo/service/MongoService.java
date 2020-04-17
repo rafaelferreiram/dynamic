@@ -1,5 +1,7 @@
 package com.dynamic.command.mongo.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +25,9 @@ public class MongoService {
 		} catch (Exception e) {
 			logger.error("Error when saving topic on MongoDB.",e.getMessage());
 		}
+	}
+	
+	public List<TweetTopicModel> findAllTopics(){
+		return repository.findAll();
 	}
 }
