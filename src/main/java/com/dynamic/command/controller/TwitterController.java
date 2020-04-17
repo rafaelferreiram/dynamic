@@ -36,8 +36,10 @@ public class TwitterController {
 
 	@GetMapping(value = "/tweets/deactivate/{topic}")
 	public ResponseEntity<String> deactivateTopic(@PathVariable(required = true) final String topic) {
-		kafkaService.deactivate(topic);
-		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be deactivade from tweets producer.");
+		if(kafkaService.deactivate(topic)) {
+			return ResponseEntity.ok().body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
+		}
+		return ResponseEntity.ok().body("Topic '" + topic + "' isn't active on Kafka Producer.");
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -53,7 +55,7 @@ public class TwitterController {
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list/actives")
 	public ResponseEntity getActivesTweetTopics(){
-		List<TweetTopicModel> activeTopics = mongoService.findAllTopics();
+		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
 		if(activeTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body("No Active Tweet Topics found.");
 		}

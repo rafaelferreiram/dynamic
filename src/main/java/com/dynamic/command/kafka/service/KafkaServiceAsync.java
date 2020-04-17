@@ -14,25 +14,37 @@ public class KafkaServiceAsync {
 
 	@Autowired
 	private KafkaService service;
-	
+
 	@Autowired
 	private MongoService mongoService;
-	
+
 	@Async
 	public void send(String topic) {
 		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
-		if(topicFound == null) {
+		if (topicFound == null) {
 			mongoService.saveNewTopic(topic);
-		}else {
+		} else {
 			topicFound.setSearchDate(new Date().toString());
+			topicFound.setActive("yes");
+			service.setActive(true);
 			mongoService.update(topicFound);
 		}
 		service.send(topic);
 	}
 
-	public void deactivate(String topic) {
-		service.setActive(false);
+	public boolean deactivate(String topic) {
+		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
+		if (topicFound == null) {
+			return false;
+		} else if ("no".equals(topicFound.getActive())) {
+			return false;
+		} else {
+			topicFound.setSearchDate(new Date().toString());
+			topicFound.setActive("no");
+			mongoService.update(topicFound);
+			service.setActive(false);
+			return true;
+		}
 	}
 
-	
 }

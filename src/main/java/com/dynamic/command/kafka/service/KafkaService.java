@@ -32,7 +32,7 @@ public class KafkaService {
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
 	
-	private boolean active = true;
+	private boolean active;
 
 	public void send(String topic) {
 		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
