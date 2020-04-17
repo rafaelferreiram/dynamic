@@ -1,7 +1,5 @@
 package com.dynamic.command.kafka.service;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -24,8 +22,7 @@ public class KafkaServiceAsync {
 		if (topicFound == null) {
 			mongoService.saveNewTopic(topic);
 		} else {
-			topicFound.setSearchDate(new Date().toString());
-			topicFound.setActive("yes");
+			topicFound.toUpdateActive();
 			service.setActive(true);
 			mongoService.update(topicFound);
 		}
@@ -39,8 +36,7 @@ public class KafkaServiceAsync {
 		} else if ("no".equals(topicFound.getActive())) {
 			return false;
 		} else {
-			topicFound.setSearchDate(new Date().toString());
-			topicFound.setActive("no");
+			topicFound.toUpdateDeactive();
 			mongoService.update(topicFound);
 			service.setActive(false);
 			return true;

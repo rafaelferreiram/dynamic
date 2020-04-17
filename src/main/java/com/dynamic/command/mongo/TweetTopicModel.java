@@ -1,5 +1,7 @@
 package com.dynamic.command.mongo;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -59,6 +61,16 @@ public class TweetTopicModel {
 	public String toString() {
 		return "TweetTopicModel [id=" + id + ", topicName=" + topicName + ", searchDate=" + searchDate + ", active="
 				+ active + "]";
+	}
+
+	public void toUpdateActive() {
+		this.searchDate = new Date().toString();
+		this.active = "yes";
+	}
+
+	public void toUpdateDeactive() {
+		this.searchDate = new Date().toString();
+		this.active = "no";
 	}
 
 }
