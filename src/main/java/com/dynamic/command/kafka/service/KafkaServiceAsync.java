@@ -30,5 +30,9 @@ public class KafkaServiceAsync {
 		service.send(topic);
 	}
 
+	public void deactivate(String topic) {
+		
+	}
+
 	
 }

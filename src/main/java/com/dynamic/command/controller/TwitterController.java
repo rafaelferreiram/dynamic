@@ -33,6 +33,12 @@ public class TwitterController {
 		kafkaService.send(topic);
 		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
 	}
+
+	@GetMapping(value = "/tweets/deactivate/{topic}")
+	public ResponseEntity<String> deactivateTopic(@PathVariable(required = true) final String topic) {
+		kafkaService.deactivate(topic);
+		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be deactivade from tweets producer.");
+	}
 	
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list")
