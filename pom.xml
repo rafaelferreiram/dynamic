@@ -38,25 +38,25 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.6</version><!--$NO-MVN-MAN-VER$-->
+			<version>2.8.6</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
-			<version>2.3.4.RELEASE</version><!--$NO-MVN-MAN-VER$-->
+			<version>2.3.4.RELEASE</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
 			<groupId> org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.3.0</version><!--$NO-MVN-MAN-VER$-->
+			<version>7.3.0</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.30</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.7.30</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
@@ -71,6 +71,28 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.13</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+					<repository>rafaelferreiram/brand-api</repository>
+					<tag>${project.version}</tag>
+					<buildArgs>
+						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
