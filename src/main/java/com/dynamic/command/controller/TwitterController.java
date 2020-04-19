@@ -15,8 +15,6 @@ import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 
-import jdk.jfr.BooleanFlag;
-
 @RestController
 @RequestMapping("/twitter")
 public class TwitterController {
