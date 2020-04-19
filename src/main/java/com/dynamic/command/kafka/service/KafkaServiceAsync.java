@@ -23,9 +23,9 @@ public class KafkaServiceAsync {
 			mongoService.saveNewTopic(topic);
 		} else {
 			topicFound.toUpdateActive();
-			service.setActive(true);
 			mongoService.update(topicFound);
 		}
+		service.setActive(true);
 		service.send(topic);
 	}
 
