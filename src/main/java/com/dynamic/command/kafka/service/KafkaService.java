@@ -68,6 +68,7 @@ public class KafkaService {
 				});
 			}
 		}
+		
 		client.stop();
 		logger.info("End of application for the topic: " + topic);
 

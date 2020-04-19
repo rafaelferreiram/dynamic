@@ -1,5 +1,7 @@
 package com.dynamic.command.kafka.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,11 @@ public class KafkaServiceAsync {
 		}
 		service.setActive(true);
 		service.send(topic);
+	}
+	
+	@Async
+	public void send(List<String> topic) {
+		
 	}
 
 	public boolean deactivate(String topic) {

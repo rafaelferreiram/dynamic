@@ -6,12 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
+
+import jdk.jfr.BooleanFlag;
 
 @RestController
 @RequestMapping("/twitter")
@@ -32,6 +36,12 @@ public class TwitterController {
 	public ResponseEntity<String> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
 		kafkaService.send(topic);
 		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
+	}
+	
+	@PostMapping(value = "/tweets/{topic}")
+	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody List<String> topics) {
+		kafkaService.send(topics);
+		return ResponseEntity.ok().body("Topic '" + topics + "' sent will be consumed from tweets on real time");
 	}
 
 	@GetMapping(value = "/tweets/deactivate/{topic}")
