@@ -40,7 +40,7 @@ public class TwitterController {
 		}
 	}
 
-	@PostMapping(value = "/tweets/{topic}")
+	@PostMapping(value = "/tweets")
 	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody List<String> topics) {
 		try {
 			kafkaService.send(topics);
