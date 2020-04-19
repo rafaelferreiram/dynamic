@@ -30,7 +30,9 @@ public class MongoService {
 
 	public List<TweetTopicModel> findActiveTopics() {
 		String active = "yes";
-		return repository.findActiveTopics(active);
+		List<TweetTopicModel> activeTopics = repository.findActiveTopics(active);
+		logger.info(activeTopics.toString());
+		return activeTopics;
 	}
 
 	public TweetTopicModel findByTopicName(String topic) {
@@ -50,7 +52,7 @@ public class MongoService {
 		try {
 			TweetTopicModel tweetTopic = new TweetTopicModel(topic, new Date().toString(), "yes");
 			repository.save(tweetTopic);
-			logger.info("Tweet Topic saved on MongoDB successfully!");
+			logger.info("Tweet Topic saved on MongoDB successfully!\n" + tweetTopic.toString());
 		} catch (Exception e) {
 			logger.error("Error when saving topic on MongoDB.", e.getMessage());
 		}
