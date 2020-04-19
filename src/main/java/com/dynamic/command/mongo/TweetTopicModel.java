@@ -5,6 +5,8 @@ import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import sun.tools.tree.ThisExpression;
+
 @Document(collection = "twitter")
 public class TweetTopicModel {
 
@@ -71,6 +73,11 @@ public class TweetTopicModel {
 	public void toUpdateDeactive() {
 		this.searchDate = new Date().toString();
 		this.active = "no";
+	}
+
+	public boolean isDeactivated() {
+		
+		return "no".equals(this.active) ? true : false;
 	}
 
 }
