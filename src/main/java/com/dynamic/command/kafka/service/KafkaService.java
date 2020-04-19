@@ -21,21 +21,21 @@ import com.twitter.hbc.core.Client;
 
 @Component
 public class KafkaService {
-	
+
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
-	
+
 	@Autowired
 	private TwitterClient twitterClient;
-	
+
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
-	
+
 	@Autowired
 	private MongoService mongoService;
-	
+
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
-	
+
 	private boolean active;
 
 	public void send(String topic) {
@@ -69,8 +69,8 @@ public class KafkaService {
 			}
 		}
 		client.stop();
-		logger.info("End of application for the topif: "+topic);
-		
+		logger.info("End of application for the topic: " + topic);
+
 	}
 
 	public boolean isActive() {
@@ -80,6 +80,5 @@ public class KafkaService {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-
 
 }
