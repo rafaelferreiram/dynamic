@@ -21,21 +21,21 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 
 @Component
 public class TwitterClient {
-	
+
 	private Logger logger = LoggerFactory.getLogger(TwitterClient.class.getName());
-	
+
 	@Value("${twitter.consumerKey}")
 	private String consumerKey;
-	
+
 	@Value("${twitter.consumerSecret}")
 	private String consumerSecret;
-	
+
 	@Value("${twitter.token}")
 	private String token;
-	
+
 	@Value("${twitter.secret}")
 	private String secret;
-	
+
 	public Client createTwitterClient(BlockingQueue<String> msgQueue, String topic) {
 		/**
 		 * Declare the host you want to connect to, the endpoint, and authentication
@@ -48,12 +48,10 @@ public class TwitterClient {
 		List<String> terms = Lists.newArrayList(topic);
 		hosebirdEndpoint.trackTerms(terms);
 
-		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret,
-				token, secret);
+		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
-		ClientBuilder builder = new ClientBuilder().name("Hosebird-Client-01") 
-				.hosts(hosebirdHosts).authentication(hosebirdAuth).endpoint(hosebirdEndpoint)
-				.processor(new StringDelimitedProcessor(msgQueue));
+		ClientBuilder builder = new ClientBuilder().hosts(hosebirdHosts).authentication(hosebirdAuth)
+				.endpoint(hosebirdEndpoint).processor(new StringDelimitedProcessor(msgQueue));
 
 		Client hosebirdClient = builder.build();
 		logger.info("Twitter Client created successfully.");
