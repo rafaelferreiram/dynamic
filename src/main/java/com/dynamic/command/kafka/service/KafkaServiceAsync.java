@@ -32,8 +32,8 @@ public class KafkaServiceAsync {
 	}
 	
 	@Async
-	public void send(List<String> topic) {
-		
+	public void send(List<String> topics) {
+		//TODO rule for list of topics
 	}
 
 	public boolean deactivate(String topic) {

@@ -23,7 +23,7 @@ public class TwitterController {
 
 	@Autowired
 	private KafkaServiceAsync kafkaService;
-	
+
 	@Autowired
 	private MongoService mongoService;
 
@@ -34,39 +34,48 @@ public class TwitterController {
 
 	@GetMapping(value = "/tweets/{topic}")
 	public ResponseEntity<String> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
-		kafkaService.send(topic);
-		return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
+		try {
+			kafkaService.send(topic);
+			return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Error while sending topic to kafka");
+		}
 	}
-	
+
 	@PostMapping(value = "/tweets/{topic}")
 	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody List<String> topics) {
-		kafkaService.send(topics);
-		return ResponseEntity.ok().body("Topic '" + topics + "' sent will be consumed from tweets on real time");
+		try {
+			kafkaService.send(topics);
+			return ResponseEntity.ok().body("Topics '" + topics + "' sent will be consumed from tweets on real time");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Error while sending topic to kafka");
+		}
 	}
 
 	@GetMapping(value = "/tweets/deactivate/{topic}")
 	public ResponseEntity<String> deactivateTopic(@PathVariable(required = true) final String topic) {
-		if(kafkaService.deactivate(topic)) {
-			return ResponseEntity.ok().body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
+		if (kafkaService.deactivate(topic)) {
+			return ResponseEntity.ok()
+					.body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
 		}
 		return ResponseEntity.ok().body("Topic '" + topic + "' isn't active on Kafka Producer.");
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list")
-	public ResponseEntity getTweetTopics(){
+	public ResponseEntity getTweetTopics() {
 		List<TweetTopicModel> allTopics = mongoService.findAllTopics();
-		if(allTopics.isEmpty()) {
+		if (allTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body("No Tweet Topics found.");
 		}
 		return ResponseEntity.ok().body(allTopics);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list/actives")
-	public ResponseEntity getActivesTweetTopics(){
+	public ResponseEntity getActivesTweetTopics() {
 		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
-		if(activeTopics.isEmpty()) {
+		if (activeTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body("No Active Tweet Topics found.");
 		}
 		return ResponseEntity.ok().body(activeTopics);
