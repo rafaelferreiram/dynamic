@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.dynamic.command.kafka.producer.KafkaProducerConfig;
+import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
 import com.twitter.hbc.core.Client;
 
@@ -28,6 +29,9 @@ public class KafkaService {
 	
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
+	
+	@Autowired
+	private MongoService mongoService;
 	
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
@@ -53,6 +57,7 @@ public class KafkaService {
 
 			if (msg != null) {
 				logger.info(msg);
+				mongoService.saveLog(msg);
 				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
 
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
