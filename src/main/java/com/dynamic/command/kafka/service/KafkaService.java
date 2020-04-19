@@ -63,7 +63,7 @@ public class KafkaService {
 				});
 			}
 		}
-		logger.info("End of application.");
+		logger.info("End of application for the topif: "+topic);
 		
 	}
 
