@@ -33,7 +33,7 @@ public class KafkaServiceAsync {
 		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
 		if (topicFound == null) {
 			return false;
-		} else if ("no".equals(topicFound.getActive())) {
+		} else if (topicFound.isDeactivated()) {
 			return false;
 		} else {
 			topicFound.toUpdateDeactive();

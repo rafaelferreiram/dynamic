@@ -76,7 +76,6 @@ public class TweetTopicModel {
 	}
 
 	public boolean isDeactivated() {
-		
 		return "no".equals(this.active) ? true : false;
 	}
 
