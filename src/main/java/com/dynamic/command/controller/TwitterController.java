@@ -43,6 +43,9 @@ public class TwitterController {
 	@PostMapping(value = "/tweets")
 	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody List<String> topics) {
 		try {
+			if (topics.isEmpty()) {
+				return ResponseEntity.badRequest().body("List of topics cannot be empty.");
+			}
 			kafkaService.send(topics);
 			return ResponseEntity.ok().body("Topics '" + topics + "' sent will be consumed from tweets on real time");
 		} catch (Exception e) {

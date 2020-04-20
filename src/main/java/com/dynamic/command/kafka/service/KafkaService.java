@@ -1,5 +1,7 @@
 package com.dynamic.command.kafka.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +42,9 @@ public class KafkaService {
 
 	public void send(String topic) {
 		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
-		Client client = twitterClient.createTwitterClient(msgQueue, topic);
+		List<String> topics = new ArrayList<String>();
+		topics.add(topic);
+		Client client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
 
@@ -68,9 +72,45 @@ public class KafkaService {
 				});
 			}
 		}
-		
+
 		client.stop();
 		logger.info("End of application for the topic: " + topic);
+
+	}
+
+	public void send(List<String> topics) {
+		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
+		Client client = twitterClient.createTwitterClient(msgQueue, topics);
+		client.connect();
+		logger.info("Connected to Twitter client.");
+
+		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
+
+		while (!client.isDone() && isActive()) {
+			String msg = null;
+			try {
+				msg = msgQueue.poll(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				client.stop();
+			}
+
+			if (msg != null) {
+				logger.info(msg);
+				mongoService.saveLog(msg);
+				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
+
+					public void onCompletion(RecordMetadata metadata, Exception exception) {
+						if (exception != null) {
+							logger.error("Error while sendind data.", exception);
+						}
+					}
+				});
+			}
+		}
+
+		client.stop();
+		logger.info("End of application for the topic: " + topics);
 
 	}
 

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -36,7 +35,7 @@ public class TwitterClient {
 	@Value("${twitter.secret}")
 	private String secret;
 
-	public Client createTwitterClient(BlockingQueue<String> msgQueue, String topic) {
+	public Client createTwitterClient(BlockingQueue<String> msgQueue, List<String> topic) {
 		/**
 		 * Declare the host you want to connect to, the endpoint, and authentication
 		 * (basic auth or oauth)
@@ -45,7 +44,7 @@ public class TwitterClient {
 		Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
 		StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
 		// Optional: set up some followings and track terms
-		List<String> terms = Lists.newArrayList(topic);
+		List<String> terms = topic;
 		hosebirdEndpoint.trackTerms(terms);
 
 		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
