@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dynamic.command.kafka.producer.dto.TopicRequestDTO;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
@@ -41,13 +42,13 @@ public class TwitterController {
 	}
 
 	@PostMapping(value = "/tweets")
-	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody List<String> topics) {
+	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody TopicRequestDTO topic) {
 		try {
-			if (topics.isEmpty()) {
+			if (topic.getTopics().isEmpty()) {
 				return ResponseEntity.badRequest().body("List of topics cannot be empty.");
 			}
-			kafkaService.send(topics);
-			return ResponseEntity.ok().body("Topics '" + topics + "' sent will be consumed from tweets on real time");
+			kafkaService.send(topic.getTopics());
+			return ResponseEntity.ok().body("Topics '" + topic.getTopics() + "' sent will be consumed from tweets on real time");
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Error while sending topic to kafka");
 		}
