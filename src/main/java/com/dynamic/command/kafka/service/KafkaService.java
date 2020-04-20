@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.dynamic.command.kafka.producer.KafkaProducerConfig;
+import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
 import com.twitter.hbc.core.Client;
@@ -111,6 +112,33 @@ public class KafkaService {
 
 		client.stop();
 		logger.info("End of application for the topic: " + topics);
+
+	}
+	
+	public boolean deactivate(String topic) {
+		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
+		if (topicFound == null) {
+			return false;
+		} else if (topicFound.isDeactivated()) {
+			return false;
+		} else {
+			topicFound.toUpdateDeactive();
+			mongoService.update(topicFound);
+			this.setActive(false);
+			return true;
+		}
+	}
+
+	public void deactivateAll() {
+		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
+
+		if (!activeTopics.isEmpty()) {
+			for (TweetTopicModel topic : activeTopics) {
+				topic.toUpdateDeactive();
+				mongoService.update(topic);
+			}
+			this.setActive(false);
+		}
 
 	}
 
