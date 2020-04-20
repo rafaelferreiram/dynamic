@@ -33,7 +33,17 @@ public class KafkaServiceAsync {
 	
 	@Async
 	public void send(List<String> topics) {
-		//TODO rule for list of topics
+		for(String topic : topics) {
+			TweetTopicModel topicFound = mongoService.findByTopicName(topic);
+			if (topicFound == null) {
+				mongoService.saveNewTopic(topic);
+			} else {
+				topicFound.toUpdateActive();
+				mongoService.update(topicFound);
+			}	
+		}
+		service.setActive(true);
+		service.send(topics);
 	}
 
 	public boolean deactivate(String topic) {
