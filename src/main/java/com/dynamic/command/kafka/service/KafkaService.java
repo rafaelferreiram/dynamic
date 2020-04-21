@@ -51,30 +51,9 @@ public class KafkaService {
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
-		while (!client.isDone() && isActive()) {
-			String msg = null;
-			try {
-				msg = msgQueue.poll(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				client.stop();
-			}
+		produceTweetsToKafka(msgQueue, client, producer);
 
-			if (msg != null) {
-				logger.info(msg);
-				mongoService.saveLog(msg);
-				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
-
-					public void onCompletion(RecordMetadata metadata, Exception exception) {
-						if (exception != null) {
-							logger.error("Error while sendind data.", exception);
-						}
-					}
-				});
-			}
-		}
-
-		client.stop();
+		client.stop(5);
 		logger.info("End of application for the topic: " + topic);
 
 	}
@@ -86,7 +65,15 @@ public class KafkaService {
 		logger.info("Connected to Twitter client.");
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
+		produceTweetsToKafka(msgQueue, client, producer);
 
+		client.stop(5);
+		logger.info("End of application for the topic: " + topics);
+
+	}
+
+	private void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
+			KafkaProducer<String, String> producer) {
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
@@ -109,12 +96,8 @@ public class KafkaService {
 				});
 			}
 		}
-
-		client.stop();
-		logger.info("End of application for the topic: " + topics);
-
 	}
-	
+
 	public boolean deactivate(String topic) {
 		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
 		if (topicFound == null) {
