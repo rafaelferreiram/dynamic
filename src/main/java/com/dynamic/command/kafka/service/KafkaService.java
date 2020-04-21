@@ -44,7 +44,6 @@ public class KafkaService {
 	private boolean active;
 
 	public void send(String topic) {
-		int numberOfDataProduced = 0;
 		List<String> topics = new ArrayList<String>();
 		topics.add(topic);
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
@@ -53,31 +52,29 @@ public class KafkaService {
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
-		produceTweetsToKafka(msgQueue, client, producer, numberOfDataProduced);
+		produceTweetsToKafka(msgQueue, client, producer);
 
 		client.stop(5);
 		logger.info("End of application for the topic: " + topic);
-		logger.info("Total of data produced into Kafka: " + numberOfDataProduced);
 
 	}
 
 	public void send(List<String> topics) {
-		int numberOfDataProduced = 0;
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-		produceTweetsToKafka(msgQueue, client, producer, numberOfDataProduced);
+		produceTweetsToKafka(msgQueue, client, producer);
 
 		client.stop(5);
 		logger.info("End of application for the topic: " + topics);
-		logger.info("Total of data produced into Kafka: " + numberOfDataProduced);
 
 	}
 
 	private void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
-			KafkaProducer<String, String> producer, int numberOfDataProduced) {
+			KafkaProducer<String, String> producer) {
+		int numberOfDataProduced = 0;
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
@@ -90,6 +87,7 @@ public class KafkaService {
 			if (msg != null) {
 				logger.info(msg);
 				mongoService.saveLog(msg);
+				numberOfDataProduced++;
 				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
 
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
@@ -98,9 +96,9 @@ public class KafkaService {
 						}
 					}
 				});
-				numberOfDataProduced++;
 			}
 		}
+		logger.info("Total of data produced into Kafka: " + numberOfDataProduced);
 	}
 
 	public boolean deactivate(String topic) {
