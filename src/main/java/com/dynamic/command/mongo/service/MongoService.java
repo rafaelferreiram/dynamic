@@ -33,7 +33,7 @@ public class MongoService {
 	public List<TweetTopicModel> findActiveTopics() {
 		String active = "yes";
 		List<TweetTopicModel> activeTopics = repository.findActiveTopics(active);
-		logger.info(activeTopics.toString());
+		logger.info("Total of active topics " + activeTopics.size());
 		return activeTopics;
 	}
 
