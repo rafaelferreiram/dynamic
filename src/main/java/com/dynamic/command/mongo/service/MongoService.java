@@ -25,7 +25,9 @@ public class MongoService {
 	private TweetLogRepository logRepository;
 
 	public List<TweetTopicModel> findAllTopics() {
-		return repository.findAll();
+		List<TweetTopicModel> allTopics = repository.findAll();
+		logger.info("Total of " + allTopics.size() + " topics.");
+		return allTopics;
 	}
 
 	public List<TweetTopicModel> findActiveTopics() {

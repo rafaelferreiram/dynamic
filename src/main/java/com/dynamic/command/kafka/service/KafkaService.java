@@ -27,11 +27,13 @@ public class KafkaService {
 
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
 
-	@Autowired
-	private TwitterClient twitterClient;
+	BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
+
+	@Autowired
+	private TwitterClient twitterClient;
 
 	@Autowired
 	private MongoService mongoService;
@@ -42,7 +44,6 @@ public class KafkaService {
 	private boolean active;
 
 	public void send(String topic) {
-		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 		List<String> topics = new ArrayList<String>();
 		topics.add(topic);
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
@@ -59,7 +60,6 @@ public class KafkaService {
 	}
 
 	public void send(List<String> topics) {
-		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
