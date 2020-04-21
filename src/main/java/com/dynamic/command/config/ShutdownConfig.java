@@ -12,7 +12,11 @@ public class ShutdownConfig {
 	private KafkaService kafkaService;
 	
 	public void shutdown() {
-		kafkaService.deactivateAll();
-		System.exit(0);	
+		try {
+			kafkaService.deactivateAll();
+			System.exit(0);	
+		} catch (Exception e) {
+
+		}
 	}
 }
