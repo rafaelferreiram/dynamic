@@ -43,6 +43,7 @@ public class TwitterClient {
 		logger.info("Creating Twitter Client.");
 		Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
 		StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
+
 		// Optional: set up some followings and track terms
 		List<String> terms = topic;
 		hosebirdEndpoint.trackTerms(terms);
@@ -50,7 +51,8 @@ public class TwitterClient {
 		Authentication hosebirdAuth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
 		ClientBuilder builder = new ClientBuilder().hosts(hosebirdHosts).authentication(hosebirdAuth)
-				.endpoint(hosebirdEndpoint).processor(new StringDelimitedProcessor(msgQueue));
+				.name("dynamic-twitter-command").endpoint(hosebirdEndpoint)
+				.processor(new StringDelimitedProcessor(msgQueue));
 
 		Client hosebirdClient = builder.build();
 		logger.info("Twitter Client created successfully.");

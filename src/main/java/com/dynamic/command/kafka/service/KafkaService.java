@@ -20,6 +20,9 @@ import com.dynamic.command.kafka.producer.KafkaProducerConfig;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.twitter.hbc.core.Client;
 
 @Component
@@ -49,10 +52,9 @@ public class KafkaService {
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
-
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
-		produceTweetsToKafka(msgQueue, client, producer);
+		produceTweetsToKafka(msgQueue, client, producer, topics);
 
 		client.stop(5);
 		logger.info("End of application for the topic: " + topic);
@@ -65,17 +67,20 @@ public class KafkaService {
 		logger.info("Connected to Twitter client.");
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-		produceTweetsToKafka(msgQueue, client, producer);
+		produceTweetsToKafka(msgQueue, client, producer, topics);
 
 		client.stop(5);
 		logger.info("End of application for the topic: " + topics);
 
 	}
 
+	@SuppressWarnings("deprecation")
 	private void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
-			KafkaProducer<String, String> producer) {
+			KafkaProducer<String, String> producer, List<String> topics) {
 		int numberOfDataProduced = 0;
-		while (!client.isDone() && isActive()) {
+		JsonParser jsonParser = new JsonParser();
+		String content = topics.get(0).toUpperCase();
+		while (!client.isDone() && isActive() && tweetContainsTopic(topics,content)) {
 			String msg = null;
 			try {
 				msg = msgQueue.poll(5, TimeUnit.SECONDS);
@@ -87,6 +92,8 @@ public class KafkaService {
 			if (msg != null) {
 				logger.info(msg);
 				mongoService.saveLog(msg);
+				JsonObject asJsonObject = jsonParser.parse(msg).getAsJsonObject();
+				content = asJsonObject.toString();
 				numberOfDataProduced++;
 				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
 
@@ -98,7 +105,16 @@ public class KafkaService {
 				});
 			}
 		}
-		logger.info("Total of data produced into Kafka: " + numberOfDataProduced);
+		logger.info("Total of data produced into Kafka: " + numberOfDataProduced + " on the twitter topic: "
+				+ topics.toString());
+	}
+
+	private boolean tweetContainsTopic(List<String> topics, String content) {
+
+		for(String topic : topics) {
+			// TODO validate if topic contains in tweet to proceed
+		}
+		return false;
 	}
 
 	public boolean deactivate(String topic) {
