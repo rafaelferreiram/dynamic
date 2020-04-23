@@ -111,25 +111,6 @@ public class KafkaService {
 				this.active = true;
 				send(topics);
 			}
-//			if (client.getEndpoint().getPostParamString().contains(topic)) {
-//				String postParamString = client.getEndpoint().getPostParamString();
-//				postParamString = postParamString.replace(topic, "");
-//				postParamString = postParamString.replace("track=", "");
-//				List<String> listTopics = new ArrayList<String>();
-//				if (!postParamString.isEmpty()) {
-//					postParamString = postParamString.replace("%2C", ",");
-//					listTopics = Arrays.asList(postParamString.split(","));
-//				}
-//				this.active = false;
-//				client.stop();
-//				logger.info("Total of data produced into Kafka: " + client.getStatsTracker().getNumMessages()
-//						+ " on the twitter topic: " + topic);
-//				client = null;
-//				if (!listTopics.isEmpty()) {
-//					this.active = true;
-//					send(listTopics);
-//				}
-//			}
 		}
 	}
 
