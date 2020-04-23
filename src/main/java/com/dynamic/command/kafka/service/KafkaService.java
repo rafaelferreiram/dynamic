@@ -20,7 +20,6 @@ import com.dynamic.command.kafka.producer.KafkaProducerConfig;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.twitter.hbc.core.Client;
