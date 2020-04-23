@@ -20,6 +20,7 @@ import com.dynamic.command.kafka.producer.KafkaProducerConfig;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.twitter.hbc.core.Client;
@@ -45,17 +46,18 @@ public class KafkaService {
 
 	private boolean active;
 
+	Client client;
+
 	List<String> topics = new ArrayList<String>();
 
 	public void send(String topic) {
+		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 		topics.add(topic);
-		Client client = twitterClient.createTwitterClient(msgQueue, topics);
+		client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
-		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
 		produceTweetsToKafka(msgQueue, client, producer, topics);
-
 	}
 
 	public void send(List<String> topics) {
@@ -78,9 +80,6 @@ public class KafkaService {
 		JsonParser jsonParser = new JsonParser();
 		String content = topics.get(0);
 		while (!client.isDone()) {
-			if (!isActive() && tweetContainsTopic(topics, content.toUpperCase())) {
-				close(client, topics);
-			}
 			String msg = null;
 			try {
 				msg = msgQueue.poll(5, TimeUnit.SECONDS);
@@ -106,40 +105,22 @@ public class KafkaService {
 			}
 
 		}
-		logger.info("Total of data produced into Kafka: " + numberOfDataProduced + " on the twitter topic: "
-				+ topics.toString());
+		logger.info("Total of data produced into Kafka: " + client.getStatsTracker().getNumMessages()
+				+ " on the twitter topic: " + topics.toString());
 	}
 
-	private void close(Client client, List<String> topics) {
-		client.stop(5);
-		logger.info("End of application for the topic: " + topics);
+	private void close(Client client, String topics) {
+
+		String postParamString = client.getEndpoint().getPostParamString();
+		postParamString = postParamString.replace(topics, "");
+		postParamString = postParamString.replace("track=", "");
+		client.stop();
+		send(postParamString);
 
 	}
 
-	private boolean tweetContainsTopic(List<String> topics, String content) {
-		for (String topic : topics) {
-			if (content.contains(topic.toUpperCase())) {
-				topics.remove(topic);
-				this.active = true;
-				return true;
-			}
-			return false;
-		}
-		return false;
-	}
-
-	public boolean deactivate(String topic) {
-		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
-		if (topicFound == null) {
-			return false;
-		} else if (topicFound.isDeactivated()) {
-			return false;
-		} else {
-			topicFound.toUpdateDeactive();
-			mongoService.update(topicFound);
-			this.setActive(false);
-			return true;
-		}
+	public void deactivate(String topic) {
+		close(client, topic);
 	}
 
 	public void deactivateAll() {

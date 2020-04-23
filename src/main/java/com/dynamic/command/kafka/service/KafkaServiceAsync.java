@@ -46,4 +46,19 @@ public class KafkaServiceAsync {
 		service.send(topics);
 	}
 
+	@Async
+	public boolean deactivate(String topic) {
+		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
+		if (topicFound == null) {
+			return false;
+		} else if (topicFound.isDeactivated()) {
+			return false;
+		} else {
+			topicFound.toUpdateDeactive();
+			mongoService.update(topicFound);
+			service.deactivate(topic);
+			return true;
+		}
+	}
+
 }
