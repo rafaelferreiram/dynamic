@@ -46,7 +46,6 @@ public class KafkaServiceAsync {
 		service.send(topics);
 	}
 
-	@Async
 	public boolean deactivate(String topic) {
 		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
 		if (topicFound == null) {
@@ -56,9 +55,13 @@ public class KafkaServiceAsync {
 		} else {
 			topicFound.toUpdateDeactive();
 			mongoService.update(topicFound);
-			service.deactivate(topic);
 			return true;
 		}
+	}
+
+	@Async
+	public void closeConnectionClient(String topic) {
+		service.deactivate(topic);
 	}
 
 }

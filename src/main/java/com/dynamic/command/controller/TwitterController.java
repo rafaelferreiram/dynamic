@@ -57,11 +57,17 @@ public class TwitterController {
 
 	@GetMapping(value = "/tweets/deactivate/{topic}")
 	public ResponseEntity<String> deactivateTopic(@PathVariable(required = true) final String topic) {
-		if (kafkaServiceAsync.deactivate(topic)) {
-			return ResponseEntity.ok()
-					.body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
+		try {
+			boolean deactivate = kafkaServiceAsync.deactivate(topic);
+			if (deactivate) {
+				kafkaServiceAsync.closeConnectionClient(topic);
+				return ResponseEntity.ok()
+						.body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
+			}
+			return ResponseEntity.ok().body("Topic '" + topic + "' isn't active on Kafka Producer.");
+		} catch (Exception e) {
+			return ResponseEntity.ok().body("Error while deactivating.");
 		}
-		return ResponseEntity.ok().body("Topic '" + topic + "' isn't active on Kafka Producer.");
 	}
 
 	@SuppressWarnings("rawtypes")

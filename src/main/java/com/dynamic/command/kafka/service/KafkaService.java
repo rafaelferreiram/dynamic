@@ -46,9 +46,9 @@ public class KafkaService {
 
 	private boolean active;
 
-	Client client;
-
 	List<String> topics = new ArrayList<String>();
+
+	Client client;
 
 	public void send(String topic) {
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
@@ -79,7 +79,7 @@ public class KafkaService {
 		int numberOfDataProduced = 0;
 		JsonParser jsonParser = new JsonParser();
 		String content = topics.get(0);
-		while (!client.isDone()) {
+		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
 				msg = msgQueue.poll(5, TimeUnit.SECONDS);
@@ -105,22 +105,29 @@ public class KafkaService {
 			}
 
 		}
-		logger.info("Total of data produced into Kafka: " + client.getStatsTracker().getNumMessages()
-				+ " on the twitter topic: " + topics.toString());
-	}
-
-	private void close(Client client, String topics) {
-
-		String postParamString = client.getEndpoint().getPostParamString();
-		postParamString = postParamString.replace(topics, "");
-		postParamString = postParamString.replace("track=", "");
-		client.stop();
-		send(postParamString);
-
+		logger.info("Total of data produced into Kafka: " + numberOfDataProduced + " on the twitter topic: "
+				+ topics.toString());
 	}
 
 	public void deactivate(String topic) {
-		close(client, topic);
+		if (client.getEndpoint().getPostParamString().contains(topic)) {
+			String postParamString = client.getEndpoint().getPostParamString();
+			postParamString = postParamString.replace(topic, "");
+			postParamString = postParamString.replace("track=", "");
+			List<String> listTopics = new ArrayList<String>();
+			if (!postParamString.isEmpty()) {
+				postParamString = postParamString.replace("%2C", ",");
+				listTopics = Lists.newArrayList(postParamString);
+			}
+			this.active = false;
+			client.stop();
+			this.active = true;
+			client = null;
+			if (!listTopics.isEmpty()) {
+				listTopics.size();
+				send(listTopics);
+			}
+		}
 	}
 
 	public void deactivateAll() {
