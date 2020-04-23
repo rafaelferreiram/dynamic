@@ -45,8 +45,9 @@ public class KafkaService {
 
 	private boolean active;
 
+	List<String> topics = new ArrayList<String>();
+
 	public void send(String topic) {
-		List<String> topics = new ArrayList<String>();
 		topics.add(topic);
 		Client client = twitterClient.createTwitterClient(msgQueue, topics);
 		client.connect();
@@ -54,9 +55,6 @@ public class KafkaService {
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 
 		produceTweetsToKafka(msgQueue, client, producer, topics);
-
-		client.stop(5);
-		logger.info("End of application for the topic: " + topic);
 
 	}
 
@@ -78,8 +76,11 @@ public class KafkaService {
 			KafkaProducer<String, String> producer, List<String> topics) {
 		int numberOfDataProduced = 0;
 		JsonParser jsonParser = new JsonParser();
-		String content = topics.get(0).toUpperCase();
-		while (!client.isDone() && isActive() && tweetContainsTopic(topics,content)) {
+		String content = topics.get(0);
+		while (!client.isDone()) {
+			if (!isActive() && tweetContainsTopic(topics, content.toUpperCase())) {
+				close(client, topics);
+			}
 			String msg = null;
 			try {
 				msg = msgQueue.poll(5, TimeUnit.SECONDS);
@@ -103,14 +104,26 @@ public class KafkaService {
 					}
 				});
 			}
+
 		}
 		logger.info("Total of data produced into Kafka: " + numberOfDataProduced + " on the twitter topic: "
 				+ topics.toString());
 	}
 
+	private void close(Client client, List<String> topics) {
+		client.stop(5);
+		logger.info("End of application for the topic: " + topics);
+
+	}
+
 	private boolean tweetContainsTopic(List<String> topics, String content) {
-		for(String topic : topics) {
-			// TODO validate if topic contains in tweet to proceed
+		for (String topic : topics) {
+			if (content.contains(topic.toUpperCase())) {
+				topics.remove(topic);
+				this.active = true;
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}
