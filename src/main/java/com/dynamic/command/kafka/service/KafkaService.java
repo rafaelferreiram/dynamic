@@ -109,7 +109,6 @@ public class KafkaService {
 	}
 
 	private boolean tweetContainsTopic(List<String> topics, String content) {
-
 		for(String topic : topics) {
 			// TODO validate if topic contains in tweet to proceed
 		}
