@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.dynamic.command.mongo.TweetTopicModel;
@@ -24,6 +25,9 @@ public class MongoService {
 	@Autowired
 	private TweetLogRepository logRepository;
 
+	@Value("${twitter.topic.active}")
+	private String active;
+	
 	public List<TweetTopicModel> findAllTopics() {
 		List<TweetTopicModel> allTopics = repository.findAll();
 		logger.info("Total of " + allTopics.size() + " topics.");
@@ -31,7 +35,6 @@ public class MongoService {
 	}
 
 	public List<TweetTopicModel> findActiveTopics() {
-		String active = "yes";
 		List<TweetTopicModel> activeTopics = repository.findActiveTopics(active);
 		logger.info("Total of active topics " + activeTopics.size());
 		return activeTopics;
@@ -52,7 +55,7 @@ public class MongoService {
 
 	public void saveNewTopic(String topic) {
 		try {
-			TweetTopicModel tweetTopic = new TweetTopicModel(topic, new Date().toString(), "yes");
+			TweetTopicModel tweetTopic = new TweetTopicModel(topic, new Date().toString(), active);
 			repository.save(tweetTopic);
 			logger.info("Tweet Topic saved on MongoDB successfully!\n" + tweetTopic.toString());
 		} catch (Exception e) {
