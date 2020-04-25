@@ -28,6 +28,7 @@ public class ApplicationStartup {
 		List<TweetTopicModel> activeTopics = repository.findActiveTopics("yes");
 		List<String> topics = new ArrayList<String>();
 		for(TweetTopicModel tweetTopic : activeTopics) {
+			logger.info("Adding active tweet topics to Kafka Service");
 			topics.add(tweetTopic.getTopicName());
 		}
 		kafkaService.send(topics);
