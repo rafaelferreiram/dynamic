@@ -20,8 +20,6 @@ import com.dynamic.command.kafka.producer.KafkaProducerConfig;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 import com.dynamic.command.twitter.TwitterClient;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.twitter.hbc.core.Client;
 
 @Component
@@ -69,10 +67,8 @@ public class KafkaService {
 
 	}
 
-	@SuppressWarnings("deprecation")
 	private void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
 			KafkaProducer<String, String> producer, List<String> topics) {
-		JsonParser jsonParser = new JsonParser();
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
@@ -85,7 +81,6 @@ public class KafkaService {
 			if (msg != null) {
 				logger.info(msg);
 				mongoService.saveLog(msg);
-				JsonObject asJsonObject = jsonParser.parse(msg).getAsJsonObject();
 				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
 
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
