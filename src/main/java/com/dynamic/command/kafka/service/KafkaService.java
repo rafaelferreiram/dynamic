@@ -117,6 +117,9 @@ public class KafkaService {
 				mongoService.update(topic);
 			}
 			this.setActive(false);
+			topics = new ArrayList<String>();
+			client.stop();
+			client = null;
 		}
 
 	}
