@@ -31,6 +31,7 @@ public class ApplicationStartup {
 			logger.info("Adding active tweet topics to Kafka Service");
 			topics.add(tweetTopic.getTopicName());
 		}
+		kafkaService.setActive(true);
 		kafkaService.send(topics);
 	}
 

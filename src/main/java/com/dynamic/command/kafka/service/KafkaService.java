@@ -1,6 +1,7 @@
 package com.dynamic.command.kafka.service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -43,26 +44,27 @@ public class KafkaService {
 
 	private boolean active;
 
-	List<String> topics = new ArrayList<String>();
+	List<String> listOfTopics = new ArrayList<String>();
 
 	Client client;
 
 	public void send(String topic) {
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-		topics.add(topic);
-		client = twitterClient.createTwitterClient(msgQueue, topics);
+		listOfTopics.add(topic);
+		client = twitterClient.createTwitterClient(msgQueue, listOfTopics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
 
-		produceTweetsToKafka(msgQueue, client, producer, topics);
+		produceTweetsToKafka(msgQueue, client, producer, listOfTopics);
 	}
 
 	public void send(List<String> topics) {
-		if(!topics.isEmpty()) {
+		if (!topics.isEmpty()) {
+			listOfTopics.addAll(topics);
 			Client client = twitterClient.createTwitterClient(msgQueue, topics);
 			client.connect();
 			logger.info("Connected to Twitter client.");
-			
+
 			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 			produceTweetsToKafka(msgQueue, client, producer, topics);
 		}
@@ -99,13 +101,15 @@ public class KafkaService {
 
 	public void deactivate(String topic) {
 		if (client != null) {
-			if (topics.contains(topic)) {
+			if (listOfTopics.contains(topic)) {
 				this.active = false;
-				topics.remove(topic);
+				listOfTopics.remove(topic);
+				LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
+				listOfTopics = new ArrayList<String>(hashSet);
 				client.stop();
 				client = null;
 				this.active = true;
-				send(topics);
+				send(listOfTopics);
 			}
 		}
 	}
@@ -119,7 +123,7 @@ public class KafkaService {
 				mongoService.update(topic);
 			}
 			this.setActive(false);
-			topics = new ArrayList<String>();
+			listOfTopics = new ArrayList<String>();
 			client.stop();
 			client = null;
 		}
