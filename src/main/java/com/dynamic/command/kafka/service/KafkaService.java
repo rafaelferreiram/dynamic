@@ -58,12 +58,14 @@ public class KafkaService {
 	}
 
 	public void send(List<String> topics) {
-		Client client = twitterClient.createTwitterClient(msgQueue, topics);
-		client.connect();
-		logger.info("Connected to Twitter client.");
-
-		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-		produceTweetsToKafka(msgQueue, client, producer, topics);
+		if(!topics.isEmpty()) {
+			Client client = twitterClient.createTwitterClient(msgQueue, topics);
+			client.connect();
+			logger.info("Connected to Twitter client.");
+			
+			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
+			produceTweetsToKafka(msgQueue, client, producer, topics);
+		}
 
 	}
 
