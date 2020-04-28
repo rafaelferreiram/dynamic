@@ -20,7 +20,7 @@ public class TopicRequestDTO {
 
 	@Override
 	public String toString() {
-		return "TopicRequestDTO [topicName=" + topicName + "]";
+		return "'" + topicName + "'";
 	}
 	
 }
