@@ -17,8 +17,8 @@ import com.dynamic.command.kafka.producer.dto.request.TopicsListRequestDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicsListResponseDTO;
+import com.dynamic.command.kafka.producer.dto.response.TweetTopicResponse;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
-import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 
 @RestController
@@ -92,7 +92,7 @@ public class TwitterController {
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list")
 	public ResponseEntity getTweetTopics() {
-		List<TweetTopicModel> allTopics = mongoService.findAllTopics();
+		List<TweetTopicResponse> allTopics = mongoService.findAllTopics();
 		if (allTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Tweet Topics found."));
 		}
@@ -102,9 +102,9 @@ public class TwitterController {
 	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/list/actives")
 	public ResponseEntity getActivesTweetTopics() {
-		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
+		List<TweetTopicResponse> activeTopics = mongoService.findActiveTopics();
 		if (activeTopics.isEmpty()) {
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
+			return ResponseEntity.ok().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
 		}
 		return ResponseEntity.ok().body(activeTopics);
 	}

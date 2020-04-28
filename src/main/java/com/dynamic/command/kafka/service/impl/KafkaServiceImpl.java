@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.dynamic.command.kafka.mapper.TweetTopicMapper;
 import com.dynamic.command.kafka.producer.KafkaProducerConfig;
+import com.dynamic.command.kafka.producer.dto.response.TweetTopicResponse;
 import com.dynamic.command.kafka.service.KafkaService;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
@@ -34,6 +36,9 @@ public class KafkaServiceImpl implements KafkaService {
 
 	@Autowired
 	private TwitterClient twitterClient;
+
+	@Autowired
+	private TweetTopicMapper mapper;
 
 	@Autowired
 	private MongoService mongoService;
@@ -113,12 +118,13 @@ public class KafkaServiceImpl implements KafkaService {
 	}
 
 	public void deactivateAll() {
-		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
+		List<TweetTopicResponse> activeTopics = mongoService.findActiveTopics();
 
 		if (!activeTopics.isEmpty()) {
-			for (TweetTopicModel topic : activeTopics) {
-				topic.toUpdateDeactive();
-				mongoService.update(topic);
+			for (TweetTopicResponse topic : activeTopics) {
+				TweetTopicModel topicModel = mapper.responseToModel(topic);
+				topicModel.toUpdateDeactive();
+				mongoService.update(topicModel);
 			}
 			this.setActive(false);
 			listOfTopics = new ArrayList<String>();

@@ -1,5 +1,6 @@
 package com.dynamic.command.mongo.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -9,11 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.dynamic.command.kafka.mapper.TweetTopicMapper;
+import com.dynamic.command.kafka.producer.dto.response.TweetTopicResponse;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.TweetsLogModel;
 import com.dynamic.command.mongo.repository.TweetLogRepository;
 import com.dynamic.command.mongo.repository.TweetTopicRepository;
 import com.dynamic.command.mongo.service.MongoService;
+
 
 @Component
 public class MongoServiceImpl implements MongoService{
@@ -29,16 +33,27 @@ public class MongoServiceImpl implements MongoService{
 	@Value("${twitter.topic.active}")
 	private String active;
 	
-	public List<TweetTopicModel> findAllTopics() {
+	@Autowired
+	private TweetTopicMapper mapper;
+	
+	public List<TweetTopicResponse> findAllTopics() {
+		List<TweetTopicResponse> response =  new ArrayList<TweetTopicResponse>();
 		List<TweetTopicModel> allTopics = repository.findAll();
 		logger.info("Total of " + allTopics.size() + " topics.");
-		return allTopics;
+		for(TweetTopicModel topic : allTopics) {
+			response.add(mapper.modelToResponse(topic));
+		}
+		return response;
 	}
 
-	public List<TweetTopicModel> findActiveTopics() {
+	public List<TweetTopicResponse> findActiveTopics() {
+		List<TweetTopicResponse> response =  new ArrayList<TweetTopicResponse>();
 		List<TweetTopicModel> activeTopics = repository.findActiveTopics(active);
 		logger.info("Total of active topics " + activeTopics.size());
-		return activeTopics;
+		for(TweetTopicModel topic : activeTopics) {
+			response.add(mapper.modelToResponse(topic));
+		}
+		return response;
 	}
 
 	public TweetTopicModel findByTopicName(String topic) {
