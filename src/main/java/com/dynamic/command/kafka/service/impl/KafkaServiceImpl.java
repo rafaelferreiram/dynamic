@@ -27,7 +27,6 @@ public class KafkaServiceImpl implements KafkaService {
 
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
 
-
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
 
@@ -47,32 +46,32 @@ public class KafkaServiceImpl implements KafkaService {
 	Client client;
 
 	public void send(String topic) {
-		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 		listOfTopics.add(topic);
+
 		client = twitterClient.createTwitterClient(listOfTopics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
 
-		produceTweetsToKafka(client, producer, listOfTopics);
+		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
+		produceTweetsToKafka(producer, listOfTopics);
 	}
 
 	public void send(List<String> topics) {
 		if (!topics.isEmpty()) {
 			listOfTopics.addAll(topics);
-			LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
-			listOfTopics = new ArrayList<String>(hashSet);
+			removeDuplicatesFromTopics(listOfTopics);
+
 			client = twitterClient.createTwitterClient(listOfTopics);
 			client.connect();
 			logger.info("Connected to Twitter client.");
 
 			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-			produceTweetsToKafka(client, producer, listOfTopics);
+			produceTweetsToKafka(producer, listOfTopics);
 		}
 
 	}
 
-	public void produceTweetsToKafka(Client client,
-			KafkaProducer<String, String> producer, List<String> topics) {
+	public void produceTweetsToKafka(KafkaProducer<String, String> producer, List<String> topics) {
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
@@ -101,8 +100,7 @@ public class KafkaServiceImpl implements KafkaService {
 
 	public void deactivate(String topic) {
 		if (client != null) {
-			LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
-			listOfTopics = new ArrayList<String>(hashSet);
+			removeDuplicatesFromTopics(listOfTopics);
 			if (listOfTopics.contains(topic)) {
 				this.active = false;
 				listOfTopics.remove(topic);
@@ -128,6 +126,11 @@ public class KafkaServiceImpl implements KafkaService {
 			client = null;
 		}
 
+	}
+
+	public void removeDuplicatesFromTopics(List<String> listOfTopics) {
+		LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
+		listOfTopics = new ArrayList<String>(hashSet);
 	}
 
 	public boolean isActive() {
