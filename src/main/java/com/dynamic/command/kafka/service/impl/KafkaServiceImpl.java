@@ -25,7 +25,7 @@ import com.dynamic.command.twitter.TwitterClient;
 import com.twitter.hbc.core.Client;
 
 @Component
-public class KafkaServiceImpl implements KafkaService{
+public class KafkaServiceImpl implements KafkaService {
 
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
 
@@ -62,12 +62,14 @@ public class KafkaServiceImpl implements KafkaService{
 	public void send(List<String> topics) {
 		if (!topics.isEmpty()) {
 			listOfTopics.addAll(topics);
-			Client client = twitterClient.createTwitterClient(msgQueue, topics);
+			LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
+			listOfTopics = new ArrayList<String>(hashSet);
+			client = twitterClient.createTwitterClient(msgQueue, listOfTopics);
 			client.connect();
 			logger.info("Connected to Twitter client.");
 
 			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-			produceTweetsToKafka(msgQueue, client, producer, topics);
+			produceTweetsToKafka(msgQueue, client, producer, listOfTopics);
 		}
 
 	}
@@ -102,11 +104,11 @@ public class KafkaServiceImpl implements KafkaService{
 
 	public void deactivate(String topic) {
 		if (client != null) {
+			LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
+			listOfTopics = new ArrayList<String>(hashSet);
 			if (listOfTopics.contains(topic)) {
 				this.active = false;
 				listOfTopics.remove(topic);
-				LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
-				listOfTopics = new ArrayList<String>(hashSet);
 				client.stop();
 				client = null;
 				this.active = true;
