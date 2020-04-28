@@ -8,3 +8,6 @@ Dynamic Twitter Command is an application of dynamic search of tweets using Kafk
 - Kafka
 - MongoDB
 - Twitter HBC
+
+#Swagger 
+http://localhost:8181/dynamic/swagger-ui.html#/twitter45controller
