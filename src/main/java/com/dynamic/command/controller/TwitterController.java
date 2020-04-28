@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dynamic.command.kafka.producer.dto.request.TopicsListRequestDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
+import com.dynamic.command.kafka.producer.dto.response.TopicsListResponseDTO;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
@@ -30,7 +31,10 @@ public class TwitterController {
 
 	@Autowired
 	private MongoService mongoService;
-	
+
+	@Value("${twitter.topic.deactive}")
+	private String inactive;
+
 	@Value("${twitter.topic.active}")
 	private String active;
 
@@ -45,10 +49,10 @@ public class TwitterController {
 		try {
 			kafkaServiceAsync.send(topic);
 			String msg = "Topic '" + topic + "' sent will be consumed from tweets on real time";
-			return ResponseEntity.ok().body(new TopicResponseDTO(topic,active,msg));
+			return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
 		} catch (Exception e) {
 			String errorMsg = "Error while sending topic to kafka";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic,errorMsg));
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
 		}
 	}
 
@@ -57,30 +61,31 @@ public class TwitterController {
 	public ResponseEntity searchTweetsByListTopic(@RequestBody(required = true) TopicsListRequestDTO topic) {
 		try {
 			if (topic.getTopics().isEmpty()) {
-				String emptyListMsg = "List of topics cannot be empty.";
-				return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(emptyListMsg));
+				return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("List of topics cannot be empty."));
 			}
 			kafkaServiceAsync.send(topic.getTopics());
-			return ResponseEntity.ok()
-					.body("Topics '" + topic.getTopics() + "' sent will be consumed from tweets on real time");
+			String msg = "Topics '" + topic.getTopics() + "' sent will be consumed from tweets on real time";
+			return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, msg));
 		} catch (Exception e) {
-			String errorMsg = "Error while sending topic to kafka";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while sending topic to kafka"));
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/deactivate/{topic}")
-	public ResponseEntity<String> deactivateTopic(@PathVariable(required = true) final String topic) {
+	public ResponseEntity deactivateTopic(@PathVariable(required = true) final String topic) {
 		try {
 			boolean deactivate = kafkaServiceAsync.deactivate(topic);
+			String msg;
 			if (deactivate) {
 				kafkaServiceAsync.closeConnectionClient(topic);
-				return ResponseEntity.ok()
-						.body("Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.");
+				msg = "Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.";
+				return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, msg));
 			}
-			return ResponseEntity.ok().body("Topic '" + topic + "' isn't active on Kafka Producer.");
+			msg = "Topic '" + topic + "' isn't active on Kafka Producer.";
+			return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, msg));
 		} catch (Exception e) {
-			return ResponseEntity.ok().body("Error while deactivating.");
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while deactivating."));
 		}
 	}
 
@@ -89,7 +94,7 @@ public class TwitterController {
 	public ResponseEntity getTweetTopics() {
 		List<TweetTopicModel> allTopics = mongoService.findAllTopics();
 		if (allTopics.isEmpty()) {
-			return ResponseEntity.badRequest().body("No Tweet Topics found.");
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Tweet Topics found."));
 		}
 		return ResponseEntity.ok().body(allTopics);
 	}
@@ -99,7 +104,7 @@ public class TwitterController {
 	public ResponseEntity getActivesTweetTopics() {
 		List<TweetTopicModel> activeTopics = mongoService.findActiveTopics();
 		if (activeTopics.isEmpty()) {
-			return ResponseEntity.badRequest().body("No Active Tweet Topics found.");
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
 		}
 		return ResponseEntity.ok().body(activeTopics);
 	}
