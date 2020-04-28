@@ -3,6 +3,7 @@ package com.dynamic.command.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dynamic.command.kafka.producer.dto.request.TopicsListRequestDTO;
+import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
+import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
@@ -27,19 +30,25 @@ public class TwitterController {
 
 	@Autowired
 	private MongoService mongoService;
+	
+	@Value("${twitter.topic.active}")
+	private String active;
 
 	@GetMapping(value = "/status")
 	public ResponseEntity<String> isWorking() {
 		return ResponseEntity.ok("Is Working...");
 	}
 
+	@SuppressWarnings("rawtypes")
 	@GetMapping(value = "/tweets/{topic}")
-	public ResponseEntity<String> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
+	public ResponseEntity searchTweetsByTopic(@PathVariable(required = true) final String topic) {
 		try {
 			kafkaServiceAsync.send(topic);
-			return ResponseEntity.ok().body("Topic '" + topic + "' sent will be consumed from tweets on real time");
+			String msg = "Topic '" + topic + "' sent will be consumed from tweets on real time";
+			return ResponseEntity.ok().body(new TopicResponseDTO(topic,active,msg));
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Error while sending topic to kafka");
+			String errorMsg = "Error while sending topic to kafka";
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic,errorMsg));
 		}
 	}
 

@@ -27,6 +27,8 @@ public class KafkaServiceImpl implements KafkaService {
 
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
 
+	List<String> listOfTopics = new ArrayList<String>();
+
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
 
@@ -40,8 +42,6 @@ public class KafkaServiceImpl implements KafkaService {
 	private String kafkaTopic;
 
 	private boolean active;
-
-	List<String> listOfTopics = new ArrayList<String>();
 
 	Client client;
 
