@@ -3,8 +3,6 @@ package com.dynamic.command.kafka.service.impl;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -29,7 +27,6 @@ public class KafkaServiceImpl implements KafkaService {
 
 	private Logger logger = LoggerFactory.getLogger(KafkaService.class.getName());
 
-	BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 
 	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
@@ -52,11 +49,11 @@ public class KafkaServiceImpl implements KafkaService {
 	public void send(String topic) {
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
 		listOfTopics.add(topic);
-		client = twitterClient.createTwitterClient(msgQueue, listOfTopics);
+		client = twitterClient.createTwitterClient(listOfTopics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
 
-		produceTweetsToKafka(msgQueue, client, producer, listOfTopics);
+		produceTweetsToKafka(client, producer, listOfTopics);
 	}
 
 	public void send(List<String> topics) {
@@ -64,22 +61,22 @@ public class KafkaServiceImpl implements KafkaService {
 			listOfTopics.addAll(topics);
 			LinkedHashSet<String> hashSet = new LinkedHashSet<>(listOfTopics);
 			listOfTopics = new ArrayList<String>(hashSet);
-			client = twitterClient.createTwitterClient(msgQueue, listOfTopics);
+			client = twitterClient.createTwitterClient(listOfTopics);
 			client.connect();
 			logger.info("Connected to Twitter client.");
 
 			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-			produceTweetsToKafka(msgQueue, client, producer, listOfTopics);
+			produceTweetsToKafka(client, producer, listOfTopics);
 		}
 
 	}
 
-	public void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
+	public void produceTweetsToKafka(Client client,
 			KafkaProducer<String, String> producer, List<String> topics) {
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
-				msg = msgQueue.poll(5, TimeUnit.SECONDS);
+				msg = twitterClient.getMsgQueue().poll(5, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				client.stop();
@@ -140,4 +137,5 @@ public class KafkaServiceImpl implements KafkaService {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+
 }

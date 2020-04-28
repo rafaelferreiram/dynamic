@@ -2,6 +2,7 @@ package com.dynamic.command.twitter;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 public class TwitterClient {
 
 	private Logger logger = LoggerFactory.getLogger(TwitterClient.class.getName());
+	
+	private BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 
 	@Value("${twitter.consumerKey}")
 	private String consumerKey;
@@ -35,7 +38,7 @@ public class TwitterClient {
 	@Value("${twitter.secret}")
 	private String secret;
 
-	public Client createTwitterClient(BlockingQueue<String> msgQueue, List<String> topic) {
+	public Client createTwitterClient(List<String> topic) {
 		/**
 		 * Declare the host you want to connect to, the endpoint, and authentication
 		 * (basic auth or oauth)
@@ -58,5 +61,10 @@ public class TwitterClient {
 		logger.info("Twitter Client created successfully.");
 		return hosebirdClient;
 	}
+	
+	public BlockingQueue<String> getMsgQueue() {
+		return msgQueue;
+	}
+
 
 }

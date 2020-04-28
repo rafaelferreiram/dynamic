@@ -1,7 +1,6 @@
 package com.dynamic.command.kafka.service;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 
@@ -13,7 +12,7 @@ public interface KafkaService {
 
 	public void send(List<String> topics);
 
-	public void produceTweetsToKafka(BlockingQueue<String> msgQueue, Client client,
+	public void produceTweetsToKafka(Client client,
 			KafkaProducer<String, String> producer, List<String> topics);
 
 	public void deactivate(String topic);
