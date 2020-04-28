@@ -15,6 +15,6 @@ A Future Consumer will read all the data sent to the broker and save the bulk in
 #Swagger 
 
 ```bash
-http://localhost:8181/dynamic/swagger-ui.html#/twitter45controller
+http://localhost:8181/dynamic/swagger-ui.html#
 ```
 
