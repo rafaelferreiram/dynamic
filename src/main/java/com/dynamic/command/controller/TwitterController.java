@@ -52,17 +52,20 @@ public class TwitterController {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@PostMapping(value = "/tweets")
-	public ResponseEntity<String> searchTweetsByListTopic(@RequestBody(required = true) TopicsListRequestDTO topic) {
+	public ResponseEntity searchTweetsByListTopic(@RequestBody(required = true) TopicsListRequestDTO topic) {
 		try {
 			if (topic.getTopics().isEmpty()) {
-				return ResponseEntity.badRequest().body("List of topics cannot be empty.");
+				String emptyListMsg = "List of topics cannot be empty.";
+				return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(emptyListMsg));
 			}
 			kafkaServiceAsync.send(topic.getTopics());
 			return ResponseEntity.ok()
 					.body("Topics '" + topic.getTopics() + "' sent will be consumed from tweets on real time");
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Error while sending topic to kafka");
+			String errorMsg = "Error while sending topic to kafka";
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
 		}
 	}
 
