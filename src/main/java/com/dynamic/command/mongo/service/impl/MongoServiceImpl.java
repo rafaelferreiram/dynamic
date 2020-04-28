@@ -68,4 +68,14 @@ public class MongoServiceImpl implements MongoService{
 		TweetsLogModel logModel = new TweetsLogModel(log, new Date().toString());
 		logRepository.save(logModel);
 	}
+	
+	public void registryTopic(String topic) {
+		TweetTopicModel topicFound = findByTopicName(topic);
+		if (topicFound == null) {
+			saveNewTopic(topic);
+		} else {
+			topicFound.toUpdateActive();
+			update(topicFound);
+		}
+	}
 }

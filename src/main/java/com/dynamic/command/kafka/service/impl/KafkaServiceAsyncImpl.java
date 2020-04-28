@@ -13,7 +13,7 @@ import com.dynamic.command.mongo.TweetTopicModel;
 import com.dynamic.command.mongo.service.MongoService;
 
 @Component
-public class KafkaServiceAsyncImpl implements KafkaServiceAsync{
+public class KafkaServiceAsyncImpl implements KafkaServiceAsync {
 
 	@Autowired
 	private KafkaService service;
@@ -22,27 +22,15 @@ public class KafkaServiceAsyncImpl implements KafkaServiceAsync{
 	private MongoService mongoService;
 
 	public void send(String topic) {
-		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
-		if (topicFound == null) {
-			mongoService.saveNewTopic(topic);
-		} else {
-			topicFound.toUpdateActive();
-			mongoService.update(topicFound);
-		}
+		mongoService.registryTopic(topic);
 		service.setActive(true);
 		service.send(topic);
 	}
 
 	public void send(List<TopicRequestDTO> topics) {
-		List<String> topicNames =  new ArrayList<String>();
+		List<String> topicNames = new ArrayList<String>();
 		for (TopicRequestDTO topic : topics) {
-			TweetTopicModel topicFound = mongoService.findByTopicName(topic.getTopicName());
-			if (topicFound == null) {
-				mongoService.saveNewTopic(topic.getTopicName());
-			} else {
-				topicFound.toUpdateActive();
-				mongoService.update(topicFound);
-			}
+			mongoService.registryTopic(topic.getTopicName());
 			topicNames.add(topic.getTopicName());
 		}
 		service.setActive(true);
@@ -65,4 +53,6 @@ public class KafkaServiceAsyncImpl implements KafkaServiceAsync{
 	public void closeConnectionClient(String topic) {
 		service.deactivate(topic);
 	}
+
+
 }

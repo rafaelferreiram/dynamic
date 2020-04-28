@@ -17,4 +17,7 @@ public interface MongoService {
 	public void saveNewTopic(String topic) ;
 
 	public void saveLog(String log) ;
+
+	public void registryTopic(String topic);
+	
 }
