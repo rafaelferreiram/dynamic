@@ -10,7 +10,7 @@ public interface KafkaService {
 
 	public void send(List<String> topics);
 
-	public void produceTweetsToKafka(KafkaProducer<String, String> producer, List<String> topics);
+	public void produceTweetsToKafka(KafkaProducer<String, String> producer);
 
 	public void deactivate(String topic);
 

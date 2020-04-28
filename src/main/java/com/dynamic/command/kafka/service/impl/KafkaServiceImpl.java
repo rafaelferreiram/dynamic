@@ -58,7 +58,7 @@ public class KafkaServiceImpl implements KafkaService {
 		logger.info("Connected to Twitter client.");
 
 		KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-		produceTweetsToKafka(producer, listOfTopics);
+		produceTweetsToKafka(producer);
 	}
 
 	public void send(List<String> topics) {
@@ -71,12 +71,12 @@ public class KafkaServiceImpl implements KafkaService {
 			logger.info("Connected to Twitter client.");
 
 			KafkaProducer<String, String> producer = kafkaProducerConfig.createKafkaProducer();
-			produceTweetsToKafka(producer, listOfTopics);
+			produceTweetsToKafka(producer);
 		}
 
 	}
 
-	public void produceTweetsToKafka(KafkaProducer<String, String> producer, List<String> topics) {
+	public void produceTweetsToKafka(KafkaProducer<String, String> producer) {
 		while (!client.isDone() && isActive()) {
 			String msg = null;
 			try {
