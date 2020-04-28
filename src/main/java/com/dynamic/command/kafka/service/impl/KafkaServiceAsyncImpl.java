@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.dynamic.command.kafka.producer.dto.TopicRequestDTO;
+import com.dynamic.command.kafka.producer.dto.request.TopicRequestDTO;
 import com.dynamic.command.kafka.service.KafkaService;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.TweetTopicModel;

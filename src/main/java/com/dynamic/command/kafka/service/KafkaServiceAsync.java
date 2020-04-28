@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Async;
 
-import com.dynamic.command.kafka.producer.dto.TopicRequestDTO;
+import com.dynamic.command.kafka.producer.dto.request.TopicRequestDTO;
 
 public interface KafkaServiceAsync {
 

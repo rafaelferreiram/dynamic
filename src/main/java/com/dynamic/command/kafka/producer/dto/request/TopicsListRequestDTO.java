@@ -1,4 +1,4 @@
-package com.dynamic.command.kafka.producer.dto;
+package com.dynamic.command.kafka.producer.dto.request;
 
 import java.util.List;
 

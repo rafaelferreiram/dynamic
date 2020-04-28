@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dynamic.command.config.ShutdownConfigAsync;
+import com.dynamic.command.kafka.producer.dto.response.ConfigResponseDTO;
 
 @RestController
 @RequestMapping("/config")
@@ -16,8 +17,11 @@ public class ConfigController {
 	private ShutdownConfigAsync shutdownConfig;
 
 	@GetMapping(value = "/shutdown")
-	public ResponseEntity<String> shutdown() {
+	public ResponseEntity<ConfigResponseDTO> shutdown() {
+		ConfigResponseDTO configResponse = new ConfigResponseDTO();
+		configResponse.setStatus("Shutting Down");
+		configResponse.setTopicsStatus("Client Topics Deactivated");
 		shutdownConfig.shutdown();
-		return ResponseEntity.ok().body("Shuttind down applicationg...");
+		return ResponseEntity.ok().body(configResponse);
 	}
 }
