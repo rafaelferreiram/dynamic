@@ -33,10 +33,10 @@ public class TwitterController {
 	private MongoService mongoService;
 
 	@Value("${twitter.topic.deactive}")
-	private String inactive;
+	String inactive;
 
 	@Value("${twitter.topic.active}")
-	private String active;
+	String active;
 
 	@GetMapping(value = "/status")
 	public ResponseEntity<String> isWorking() {
@@ -102,6 +102,10 @@ public class TwitterController {
 			return ResponseEntity.ok().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
 		}
 		return ResponseEntity.ok().body(activeTopics);
+	}
+
+	public TwitterController(KafkaServiceAsync kafkaServiceAsync) {
+		this.kafkaServiceAsync = kafkaServiceAsync;
 	}
 
 }
