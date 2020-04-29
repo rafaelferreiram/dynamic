@@ -8,17 +8,17 @@ public class TopicErrorResponseDTO {
 	private String topicName;
 
 	@JsonProperty(value = "error")
-	private String error;
+	private String msg;
 
-	public TopicErrorResponseDTO(String topicName, String error) {
+	public TopicErrorResponseDTO(String topicName, String msg) {
 		super();
 		this.topicName = topicName;
-		this.error = error;
+		this.msg = msg;
 	}
 
 	public TopicErrorResponseDTO(String error) {
 		super();
-		this.error = error;
+		this.msg = error;
 	}
 
 	public String getTopicName() {
@@ -29,12 +29,12 @@ public class TopicErrorResponseDTO {
 		this.topicName = topicName;
 	}
 
-	public String getError() {
-		return error;
+	public String getMsg() {
+		return msg;
 	}
 
-	public void setError(String error) {
-		this.error = error;
+	public void setMsg(String msg) {
+		this.msg = msg;
 	}
 
 }
