@@ -46,7 +46,11 @@ public class KafkaServiceImpl implements KafkaService {
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
 
+	@Value("${kafka.producer.active}")
+	public boolean kafkaIsOn;
+
 	private boolean active;
+	
 
 	Client client;
 
@@ -77,28 +81,32 @@ public class KafkaServiceImpl implements KafkaService {
 	}
 
 	public void produceTweetsToKafka(KafkaProducer<String, String> producer) {
-		while (!client.isDone() && isActive()) {
-			String msg = null;
-			try {
-				msg = twitterClient.getMsgQueue().poll(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				client.stop();
-			}
-
-			if (msg != null) {
-				logger.info(msg);
-				mongoService.saveLog(msg);
-				producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
-
-					public void onCompletion(RecordMetadata metadata, Exception exception) {
-						if (exception != null) {
-							logger.error("Error while sendind data.", exception);
+		if(kafkaIsOn) {
+			while (!client.isDone() && isActive()) {
+				String msg = null;
+				try {
+					msg = twitterClient.getMsgQueue().poll(5, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					client.stop();
+				}
+				
+				if (msg != null) {
+					logger.info(msg);
+					mongoService.saveLog(msg);
+					producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
+						
+						public void onCompletion(RecordMetadata metadata, Exception exception) {
+							if (exception != null) {
+								logger.error("Error while sendind data.", exception);
+							}
 						}
-					}
-				});
+					});
+				}
+				
 			}
-
+		}else {
+			deactivateAll();
 		}
 
 	}
