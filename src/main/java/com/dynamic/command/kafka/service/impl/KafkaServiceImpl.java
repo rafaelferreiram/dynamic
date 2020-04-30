@@ -47,7 +47,7 @@ public class KafkaServiceImpl implements KafkaService {
 	private String kafkaTopic;
 
 	@Value("true")
-	public boolean kafkaIsOn;
+	private boolean kafkaIsOn;
 
 	private boolean active;
 	
@@ -154,5 +154,15 @@ public class KafkaServiceImpl implements KafkaService {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+
+	public boolean isKafkaIsOn() {
+		return kafkaIsOn;
+	}
+
+	public void setKafkaIsOn(boolean kafkaIsOn) {
+		this.kafkaIsOn = kafkaIsOn;
+	}
+	
+	
 
 }

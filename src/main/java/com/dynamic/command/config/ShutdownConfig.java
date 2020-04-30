@@ -13,7 +13,7 @@ public class ShutdownConfig {
 	
 	public void shutdown() {
 		try {
-			kafkaService.kafkaIsOn = false;
+			kafkaService.setKafkaIsOn(false);
 		} catch (Exception e) {
 
 		}

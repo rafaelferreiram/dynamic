@@ -18,6 +18,7 @@ import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicsListResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TweetTopicResponse;
+import com.dynamic.command.kafka.service.KafkaService;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.service.MongoService;
 
@@ -28,6 +29,9 @@ public class TwitterController {
 
 	@Autowired
 	private KafkaServiceAsync kafkaServiceAsync;
+	
+	@Autowired
+	private KafkaService kafkaService;
 
 	@Autowired
 	private MongoService mongoService;
@@ -46,9 +50,13 @@ public class TwitterController {
 	@GetMapping(value = "/tweets/{topic}")
 	public ResponseEntity<Object> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
 		try {
-			kafkaServiceAsync.send(topic);
-			String msg = "Topic " + topic.toUpperCase() + " sent will be consumed from tweets on real time";
-			return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
+			if(kafkaService.isKafkaIsOn()) {
+				kafkaServiceAsync.send(topic);
+				String msg = "Topic " + topic.toUpperCase() + " sent will be consumed from tweets on real time";
+				return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
+			}
+			String errorMsg = "Kafka server is OFFLINE";
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
 		} catch (Exception e) {
 			String errorMsg = "Error while sending topic to kafka";
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
@@ -76,11 +84,11 @@ public class TwitterController {
 			String msg;
 			if (deactivate) {
 				kafkaServiceAsync.closeConnectionClient(topic);
-				msg = "Topic '" + topic + "' sent will be deactivade from Tweets Kafka Producer.";
+				msg = "Topic " + topic.toUpperCase() + " sent will be deactivade from Tweets Kafka Producer.";
 				return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, msg));
 			}
-			msg = "Topic '" + topic + "' isn't active on Kafka Producer.";
-			return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, msg));
+			msg = "Topic " + topic.toUpperCase() + " is not active on Kafka Producer.";
+			return ResponseEntity.badRequest().body(new TopicResponseDTO(topic, inactive, msg));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while deactivating."));
 		}
@@ -104,8 +112,9 @@ public class TwitterController {
 		return ResponseEntity.ok().body(activeTopics);
 	}
 
-	public TwitterController(KafkaServiceAsync kafkaServiceAsync) {
+	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService) {
 		this.kafkaServiceAsync = kafkaServiceAsync;
+		this.kafkaService = kafkaService;
 	}
 
 }
