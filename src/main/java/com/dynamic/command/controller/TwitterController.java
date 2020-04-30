@@ -29,7 +29,7 @@ public class TwitterController {
 
 	@Autowired
 	private KafkaServiceAsync kafkaServiceAsync;
-	
+
 	@Autowired
 	private KafkaService kafkaService;
 
@@ -48,15 +48,15 @@ public class TwitterController {
 	}
 
 	@GetMapping(value = "/tweets/{topic}")
-	public ResponseEntity<Object> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
+	public ResponseEntity<Object> sendTopicToKafka(@PathVariable(required = true) final String topic) {
 		try {
-			if(kafkaService.isKafkaIsOn()) {
+			if (kafkaService.isKafkaIsOn()) {
 				kafkaServiceAsync.send(topic);
 				String msg = "Topic " + topic.toUpperCase() + " sent will be consumed from tweets on real time";
 				return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
 			}
-			String errorMsg = "Kafka server is OFFLINE";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
+			String errorMsg = "Kafka server is OFFLINE.";
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
 		} catch (Exception e) {
 			String errorMsg = "Error while sending topic to kafka";
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
@@ -64,14 +64,19 @@ public class TwitterController {
 	}
 
 	@PostMapping(value = "/tweets")
-	public ResponseEntity<Object> searchTweetsByListTopic(@RequestBody(required = true) TopicsListRequestDTO topic) {
+	public ResponseEntity<Object> sendListOfTopicsToKafka(@RequestBody(required = true) TopicsListRequestDTO topic) {
 		try {
 			if (topic.getTopics().isEmpty()) {
 				return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("List of topics cannot be empty."));
 			}
-			kafkaServiceAsync.send(topic.getTopics());
-			String msg = "Topics " + topic.getTopics().toString().toUpperCase() + " sent will be consumed from tweets on real time";
-			return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, msg));
+			if (kafkaService.isKafkaIsOn()) {
+				kafkaServiceAsync.send(topic.getTopics());
+				String msg = "Topics " + topic.getTopics().toString().toUpperCase()
+						+ " sent will be consumed from tweets on real time";
+				return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, msg));
+			}
+			String errorMsg = "Kafka server is OFFLINE.";
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while sending topic to kafka"));
 		}
@@ -112,7 +117,8 @@ public class TwitterController {
 		return ResponseEntity.ok().body(activeTopics);
 	}
 
-	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService, MongoService mongoService) {
+	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService,
+			MongoService mongoService) {
 		this.kafkaServiceAsync = kafkaServiceAsync;
 		this.kafkaService = kafkaService;
 		this.mongoService = mongoService;
