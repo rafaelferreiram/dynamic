@@ -6,6 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
+import com.dynamic.command.kafka.producer.dto.response.TweetTopicResponse;
 import com.dynamic.command.kafka.service.KafkaService;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.service.MongoService;
@@ -49,7 +53,7 @@ public class TwitterControllerTest {
 	@Before
 	public void onInit() {
 		MockitoAnnotations.initMocks(this);
-		TwitterController controller = new TwitterController(kafkaServiceAsync,kafkaService);
+		TwitterController controller = new TwitterController(kafkaServiceAsync,kafkaService,mongoService);
 		controller.active = "yes";
 		controller.inactive = "no";
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -119,6 +123,33 @@ public class TwitterControllerTest {
 
 	}
 	
+	
+	@Test
+	public void shouldReturnListOfTopics() throws Exception {
+		List<TweetTopicResponse> expectedResponse =  populateListResponse();
+		String expectedResponseJson = gson.toJson(expectedResponse);
+		Mockito.when(mongoService.findAllTopics()).thenReturn(expectedResponse);
+		
+		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/list").contentType(APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+
+		assertEquals(STATUS_OK, response.getResponse().getStatus());
+		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
+
+	}
+	
+	
+	private List<TweetTopicResponse> populateListResponse() {
+		List<TweetTopicResponse> returnList = new ArrayList<TweetTopicResponse>();
+		TweetTopicResponse responseOne =  new TweetTopicResponse("1","netflix","20/04/2020","yes");
+		TweetTopicResponse responseTwo =  new TweetTopicResponse("2","ps5","21/04/2020","no");
+		TweetTopicResponse responseThree =  new TweetTopicResponse("3","iphone","22/04/2020","yes");
+		returnList.add(responseOne);
+		returnList.add(responseTwo);
+		returnList.add(responseThree);
+		return returnList;
+	}
+
 	private TopicErrorResponseDTO populateErroResponse() {
 		String errorMsg = "Kafka server is OFFLINE";
 		return new TopicErrorResponseDTO(TOPIC, errorMsg);

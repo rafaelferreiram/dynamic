@@ -112,9 +112,10 @@ public class TwitterController {
 		return ResponseEntity.ok().body(activeTopics);
 	}
 
-	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService) {
+	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService, MongoService mongoService) {
 		this.kafkaServiceAsync = kafkaServiceAsync;
 		this.kafkaService = kafkaService;
+		this.mongoService = mongoService;
 	}
 
 }

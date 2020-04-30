@@ -19,6 +19,19 @@ public class TweetTopicResponse {
 	@JsonProperty(value = "active")
 	private String active;
 
+	public TweetTopicResponse() {
+		super();
+	}
+
+	public TweetTopicResponse(@NotNull String id, @NotNull String topicName, @NotNull String searchDate,
+			@NotNull String active) {
+		super();
+		this.id = id;
+		this.topicName = topicName;
+		this.searchDate = searchDate;
+		this.active = active;
+	}
+
 	public String getId() {
 		return id;
 	}
