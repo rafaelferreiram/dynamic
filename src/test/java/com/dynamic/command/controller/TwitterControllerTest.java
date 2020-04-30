@@ -27,6 +27,7 @@ import com.dynamic.command.kafka.service.KafkaService;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.service.MongoService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @RunWith(SpringRunner.class)
 public class TwitterControllerTest {
@@ -42,13 +43,13 @@ public class TwitterControllerTest {
 
 	private MockMvc mockMvc;
 
-	Gson gson;
-
 	private static final int BAD_REQUEST = 400;
-
+	
 	private static final int STATUS_OK = 200;
-
+	
 	private static final String TOPIC = "trump";
+	
+	Gson gson;
 
 	@Before
 	public void onInit() {
@@ -138,6 +139,57 @@ public class TwitterControllerTest {
 
 	}
 	
+	@Test
+	public void shouldReturnEmptyListOfTopics() throws Exception {
+		GsonBuilder gsonBuilder = new GsonBuilder();  
+		gsonBuilder.serializeNulls();  
+		gson = gsonBuilder.create();
+		
+		TopicErrorResponseDTO expectedResponse = new TopicErrorResponseDTO(null,"No Tweet Topics found.");
+		String expectedResponseJson = gson.toJson(expectedResponse);
+		
+		Mockito.when(mongoService.findAllTopics()).thenReturn(new ArrayList<TweetTopicResponse>());
+		
+		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/list").contentType(APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isBadRequest()).andReturn();
+
+		assertEquals(BAD_REQUEST, response.getResponse().getStatus());
+		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
+
+	}
+	
+	@Test
+	public void shouldReturnListOfActives() throws Exception {
+		List<TweetTopicResponse> expectedResponse =  populateListResponse();
+		String expectedResponseJson = gson.toJson(expectedResponse);
+		Mockito.when(mongoService.findActiveTopics()).thenReturn(expectedResponse);
+		
+		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/list/actives").contentType(APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
+
+		assertEquals(STATUS_OK, response.getResponse().getStatus());
+		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
+
+	}
+	
+	@Test
+	public void shouldReturnNoTopicsActives() throws Exception {
+		GsonBuilder gsonBuilder = new GsonBuilder();  
+		gsonBuilder.serializeNulls();  
+		gson = gsonBuilder.create();
+		
+		TopicErrorResponseDTO expectedResponse = new TopicErrorResponseDTO("No Active Tweet Topics found.");
+		String expectedResponseJson = gson.toJson(expectedResponse);
+		
+		Mockito.when(mongoService.findActiveTopics()).thenReturn(new ArrayList<TweetTopicResponse>());
+		
+		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/list/actives").contentType(APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isBadRequest()).andReturn();
+
+		assertEquals(BAD_REQUEST, response.getResponse().getStatus());
+		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
+
+	}
 	
 	private List<TweetTopicResponse> populateListResponse() {
 		List<TweetTopicResponse> returnList = new ArrayList<TweetTopicResponse>();

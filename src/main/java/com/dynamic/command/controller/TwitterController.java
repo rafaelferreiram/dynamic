@@ -107,7 +107,7 @@ public class TwitterController {
 	public ResponseEntity<Object> getActivesTweetTopics() {
 		List<TweetTopicResponse> activeTopics = mongoService.findActiveTopics();
 		if (activeTopics.isEmpty()) {
-			return ResponseEntity.ok().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
 		}
 		return ResponseEntity.ok().body(activeTopics);
 	}
