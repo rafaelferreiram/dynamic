@@ -46,7 +46,7 @@ public class KafkaServiceImpl implements KafkaService {
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
 
-	@Value("${kafka.producer.active}")
+	@Value("true")
 	public boolean kafkaIsOn;
 
 	private boolean active;
