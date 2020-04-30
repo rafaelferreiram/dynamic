@@ -47,7 +47,7 @@ public class TwitterController {
 	public ResponseEntity<Object> searchTweetsByTopic(@PathVariable(required = true) final String topic) {
 		try {
 			kafkaServiceAsync.send(topic);
-			String msg = "Topic '" + topic + "' sent will be consumed from tweets on real time";
+			String msg = "Topic " + topic.toUpperCase() + " sent will be consumed from tweets on real time";
 			return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
 		} catch (Exception e) {
 			String errorMsg = "Error while sending topic to kafka";
@@ -62,7 +62,7 @@ public class TwitterController {
 				return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("List of topics cannot be empty."));
 			}
 			kafkaServiceAsync.send(topic.getTopics());
-			String msg = "Topics '" + topic.getTopics() + "' sent will be consumed from tweets on real time";
+			String msg = "Topics " + topic.getTopics().toString().toUpperCase() + " sent will be consumed from tweets on real time";
 			return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, msg));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while sending topic to kafka"));

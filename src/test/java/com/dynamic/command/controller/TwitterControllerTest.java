@@ -19,9 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
 import com.dynamic.command.kafka.service.KafkaServiceAsync;
 import com.dynamic.command.mongo.service.MongoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 
 @RunWith(SpringRunner.class)
@@ -56,18 +53,17 @@ public class TwitterControllerTest {
 	@Test
 	public void sendSingleTopicToKafka() throws Exception {
 		TopicResponseDTO expectedReturn = populateResponse();
+		String expectedResponseJson = gson.toJson(expectedReturn);
 
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
-
-		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/" + TOPIC).contentType(APPLICATION_JSON)).andDo(print())
-				.andExpect(status().isOk()).andReturn();
+		MvcResult response = this.mockMvc.perform(get("/twitter/tweets/" + TOPIC).contentType(APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isOk()).andReturn();
 
 		assertEquals(STATUS_OK, response.getResponse().getStatus());
+		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
 	}
 
 	private TopicResponseDTO populateResponse() {
-		String msg = "Topic '" + TOPIC + "' sent will be consumed from tweets on real time";
+		String msg = "Topic " + TOPIC.toUpperCase() + " sent will be consumed from tweets on real time";
 		return new TopicResponseDTO(TOPIC, "yes", msg);
 	}
 }
