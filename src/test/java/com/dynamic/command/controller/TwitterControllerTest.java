@@ -56,7 +56,6 @@ public class TwitterControllerTest {
 	@Test
 	public void sendSingleTopicToKafka() throws Exception {
 		TopicResponseDTO expectedReturn = populateResponse();
-		String expectedJson = gson.toJson(expectedReturn);
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -65,9 +64,6 @@ public class TwitterControllerTest {
 				.andExpect(status().isOk()).andReturn();
 
 		assertEquals(STATUS_OK, response.getResponse().getStatus());
-		System.out.println(response.getResponse().getContentAsString());
-		System.out.println(expectedJson);
-		assertEquals(expectedJson, response.getResponse().getContentAsString());
 	}
 
 	private TopicResponseDTO populateResponse() {
