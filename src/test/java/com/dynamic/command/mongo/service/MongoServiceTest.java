@@ -22,7 +22,6 @@ import com.dynamic.command.mongo.repository.TweetTopicRepository;
 import com.dynamic.command.mongo.service.impl.MongoServiceImpl;
 
 @RunWith(SpringRunner.class)
-//@SpringBootTest
 public class MongoServiceTest {
 
 	private static final String ACTIVE = "yes";

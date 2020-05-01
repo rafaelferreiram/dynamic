@@ -23,20 +23,20 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 public class TwitterClient {
 
 	private Logger logger = LoggerFactory.getLogger(TwitterClient.class.getName());
-	
+
 	private BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(100000);
 
 	@Value("${twitter.consumerKey}")
-	private String consumerKey;
+	String consumerKey;
 
 	@Value("${twitter.consumerSecret}")
-	private String consumerSecret;
+	String consumerSecret;
 
 	@Value("${twitter.token}")
-	private String token;
+	String token;
 
 	@Value("${twitter.secret}")
-	private String secret;
+	String secret;
 
 	public Client createTwitterClient(List<String> topic) {
 		/**
@@ -61,10 +61,9 @@ public class TwitterClient {
 		logger.info("Twitter Client created successfully.");
 		return hosebirdClient;
 	}
-	
+
 	public BlockingQueue<String> getMsgQueue() {
 		return msgQueue;
 	}
-
 
 }
