@@ -23,4 +23,6 @@ public interface KafkaService {
 	public void setActive(boolean active);
 
 	public boolean isKafkaIsOn();
+
+	public void setKafkaIsOn(boolean b);
 }
