@@ -10,7 +10,7 @@ import com.dynamic.command.mongo.TweetTopicModel;
 
 @Repository
 public interface TweetTopicRepository extends MongoRepository<TweetTopicModel, String>{
-
+	
 	@Query("{ 'active': ?0 }")
 	List<TweetTopicModel> findActiveTopics(String active);
 

@@ -31,7 +31,7 @@ public class MongoServiceImpl implements MongoService{
 	private TweetLogRepository logRepository;
 
 	@Value("${twitter.topic.active}")
-	private String active;
+	public String active;
 	
 	@Autowired
 	private TweetTopicMapper mapper;
