@@ -67,7 +67,8 @@ public class TwitterControllerTest {
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 		gson = new Gson();
 	}
-
+	
+	
 	@Test
 	public void sendSingleTopicToKafka() throws Exception {
 		TopicResponseDTO expectedReturn = populateResponse();
@@ -81,7 +82,7 @@ public class TwitterControllerTest {
 		assertEquals(STATUS_OK, response.getResponse().getStatus());
 		assertEquals(expectedResponseJson, response.getResponse().getContentAsString());
 	}
-
+	
 	@Test
 	public void sendSingleTopicToKafkaWhenOffline() throws Exception {
 		GsonBuilder gsonBuilder = new GsonBuilder();
