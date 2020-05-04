@@ -50,7 +50,6 @@ public class KafkaServiceImpl implements KafkaService {
 	private boolean kafkaIsOn;
 
 	private boolean active;
-	
 
 	Client client;
 
@@ -81,7 +80,7 @@ public class KafkaServiceImpl implements KafkaService {
 	}
 
 	public void produceTweetsToKafka(KafkaProducer<String, String> producer) {
-		if(kafkaIsOn) {
+		if (kafkaIsOn) {
 			while (!client.isDone() && isActive()) {
 				String msg = null;
 				try {
@@ -90,12 +89,12 @@ public class KafkaServiceImpl implements KafkaService {
 					e.printStackTrace();
 					client.stop();
 				}
-				
+
 				if (msg != null) {
 					logger.info(msg);
 					mongoService.saveLog(msg);
 					producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
-						
+
 						public void onCompletion(RecordMetadata metadata, Exception exception) {
 							if (exception != null) {
 								logger.error("Error while sendind data.", exception);
@@ -103,9 +102,9 @@ public class KafkaServiceImpl implements KafkaService {
 						}
 					});
 				}
-				
+
 			}
-		}else {
+		} else {
 			deactivateAll();
 		}
 
@@ -162,7 +161,5 @@ public class KafkaServiceImpl implements KafkaService {
 	public void setKafkaIsOn(boolean kafkaIsOn) {
 		this.kafkaIsOn = kafkaIsOn;
 	}
-	
-	
 
 }
