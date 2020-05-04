@@ -31,20 +31,18 @@ public class KafkaProducerConfig {
 		properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 		properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-		// create safe
 		properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
 		properties.setProperty(ProducerConfig.ACKS_CONFIG, acks);
 		properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
 		properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
 
-		// high throughput producer
 		properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
 		properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "15");
-		properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32 * 1024)); //32 BK batch size
+		properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32 * 1024)); 
 
-		// create Producer
 		KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
 		logger.info("Kafka Producer created.");
+		
 		return producer;
 	}
 }
