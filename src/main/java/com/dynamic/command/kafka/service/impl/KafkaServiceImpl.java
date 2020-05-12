@@ -82,32 +82,38 @@ public class KafkaServiceImpl implements KafkaService {
 	public void produceTweetsToKafka(KafkaProducer<String, String> producer) {
 		if (kafkaIsOn) {
 			while (!client.isDone() && isActive()) {
-				String msg = null;
-				try {
-					msg = twitterClient.getMsgQueue().poll(5, TimeUnit.SECONDS);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					client.stop();
-				}
-
+				String msg = getMessageFromQueue();
 				if (msg != null) {
-					logger.info(msg);
-					mongoService.saveLog(msg);
-					producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
-
-						public void onCompletion(RecordMetadata metadata, Exception exception) {
-							if (exception != null) {
-								logger.error("Error while sendind data.", exception);
-							}
-						}
-					});
+					sendDataToKafkaBroker(producer, msg);
 				}
-
 			}
 		} else {
 			deactivateAll();
 		}
+	}
 
+	private void sendDataToKafkaBroker(KafkaProducer<String, String> producer, String msg) {
+		logger.info(msg);
+		mongoService.saveLog(msg);
+		producer.send(new ProducerRecord<String, String>(kafkaTopic, null, msg), new Callback() {
+
+			public void onCompletion(RecordMetadata metadata, Exception exception) {
+				if (exception != null) {
+					logger.error("Error while sendind data.", exception);
+				}
+			}
+		});
+	}
+
+	private String getMessageFromQueue() {
+		String msg = null;
+		try {
+			msg = twitterClient.getMsgQueue().poll(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			client.stop();
+		}
+		return msg;
 	}
 
 	public void deactivate(String topic) {
