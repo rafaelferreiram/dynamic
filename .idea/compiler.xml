@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dynamic.consumer" />
+        <module name="TestesUnitarios" />
+        <module name="expenses-calculator" />
+        <module name="dynamic.command" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dynamic.command" target="11" />
+      <module name="dynamic.consumer" target="11" />
+      <module name="expenses-calculator" target="11" />
+      <module name="TestesUnitarios" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dynamic.command" options="-parameters" />
+      <module name="dynamic.consumer" options="-parameters" />
+      <module name="expenses-calculator" options="-parameters" />
+    </option>
+  </component>
+</project>

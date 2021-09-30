@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dynamic.command.kafka.producer.dto.request.TopicsListRequestDTO;
+import com.dynamic.command.kafka.producer.dto.response.KafkaServerErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicErrorResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicResponseDTO;
 import com.dynamic.command.kafka.producer.dto.response.TopicsListResponseDTO;
@@ -27,13 +28,10 @@ import com.dynamic.command.mongo.service.MongoService;
 @CrossOrigin(origins = "*")
 public class TwitterController {
 
-	@Autowired
 	private KafkaServiceAsync kafkaServiceAsync;
 
-	@Autowired
 	private KafkaService kafkaService;
 
-	@Autowired
 	private MongoService mongoService;
 
 	@Value("${twitter.topic.deactive}")
@@ -52,18 +50,15 @@ public class TwitterController {
 		try {
 			if (kafkaService.isKafkaIsOn()) {
 				kafkaServiceAsync.send(topic);
-				String msg = "Topic " + topic.toUpperCase() + " sent will be consumed from tweets on real time";
-				return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, msg));
+				return ResponseEntity.ok().body(new TopicResponseDTO(topic, active, String.format("Topic %s sent will be consumed from tweets on real time", topic.toUpperCase())));
 			}
-			String errorMsg = "Kafka server is OFFLINE.";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
+			return ResponseEntity.badRequest().body(new KafkaServerErrorResponseDTO(Boolean.FALSE,"Kafka server is OFFLINE."));
 		} catch (Exception e) {
-			String errorMsg = "Error while sending topic to kafka";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, errorMsg));
+			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(topic, String.format("Error while sending topic to kafka [%]", e.getMessage())));
 		}
 	}
 
-	@PostMapping(value = "/tweets")
+	@PostMapping(value = "/tweets/")
 	public ResponseEntity<Object> sendListOfTopicsToKafka(@RequestBody(required = true) TopicsListRequestDTO topic) {
 		try {
 			if (topic.getTopics().isEmpty()) {
@@ -71,12 +66,9 @@ public class TwitterController {
 			}
 			if (kafkaService.isKafkaIsOn()) {
 				kafkaServiceAsync.send(topic.getTopics());
-				String msg = "Topics " + topic.getTopics().toString().toUpperCase()
-						+ " sent will be consumed from tweets on real time";
-				return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, msg));
+				return ResponseEntity.ok().body(new TopicsListResponseDTO(topic.getTopics(), active, String.format("Topics ' %s ' sent will be consumed from tweets on real time", topic.getTopics().toString().toUpperCase())));
 			}
-			String errorMsg = "Kafka server is OFFLINE.";
-			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO(errorMsg));
+			return ResponseEntity.badRequest().body(new KafkaServerErrorResponseDTO(Boolean.FALSE,"Kafka server is OFFLINE."));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while sending topic to kafka"));
 		}
@@ -85,22 +77,24 @@ public class TwitterController {
 	@GetMapping(value = "/tweets/deactivate/{topic}")
 	public ResponseEntity<Object> deactivateTopic(@PathVariable(required = true) final String topic) {
 		try {
-			boolean deactivate = kafkaServiceAsync.deactivate(topic);
-			String msg;
-			if (deactivate) {
-				kafkaServiceAsync.closeConnectionClient(topic);
-				msg = "Topic " + topic.toUpperCase() + " sent will be deactivade from Tweets Kafka Producer.";
-				return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, msg));
+			if (!kafkaService.isKafkaIsOn()) {
+				return ResponseEntity.badRequest().body(new KafkaServerErrorResponseDTO(Boolean.FALSE,"Kafka server is OFFLINE."));
 			}
-			msg = "Topic " + topic.toUpperCase() + " is not active on Kafka Producer.";
-			return ResponseEntity.badRequest().body(new TopicResponseDTO(topic, inactive, msg));
+			if (kafkaServiceAsync.deactivate(topic)) {
+				kafkaServiceAsync.closeConnectionClient(topic);
+				return ResponseEntity.ok().body(new TopicResponseDTO(topic, inactive, String.format("Topic ' %s ' sent will be deactivade from Tweets Kafka Producer.",  topic.toUpperCase())));
+			}
+			return ResponseEntity.badRequest().body(new TopicResponseDTO(topic, inactive, String.format("Topic ' %s ' is not active on Kafka Producer.",  topic.toUpperCase())));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("Error while deactivating."));
 		}
 	}
 
-	@GetMapping(value = "/tweets/list")
+	@GetMapping(value = "/tweets/")
 	public ResponseEntity<Object> getTweetTopics() {
+		if (!kafkaService.isKafkaIsOn()) {
+			return ResponseEntity.badRequest().body(new KafkaServerErrorResponseDTO(Boolean.FALSE,"Kafka server is OFFLINE."));
+		}
 		List<TweetTopicResponse> allTopics = mongoService.findAllTopics();
 		if (allTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Tweet Topics found."));
@@ -108,8 +102,11 @@ public class TwitterController {
 		return ResponseEntity.ok().body(allTopics);
 	}
 
-	@GetMapping(value = "/tweets/list/actives")
+	@GetMapping(value = "/tweets/actives")
 	public ResponseEntity<Object> getActivesTweetTopics() {
+		if (!kafkaService.isKafkaIsOn()) {
+			return ResponseEntity.badRequest().body(new KafkaServerErrorResponseDTO(Boolean.FALSE,"Kafka server is OFFLINE."));
+		}
 		List<TweetTopicResponse> activeTopics = mongoService.findActiveTopics();
 		if (activeTopics.isEmpty()) {
 			return ResponseEntity.badRequest().body(new TopicErrorResponseDTO("No Active Tweet Topics found."));
@@ -117,8 +114,8 @@ public class TwitterController {
 		return ResponseEntity.ok().body(activeTopics);
 	}
 
-	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService,
-			MongoService mongoService) {
+	@Autowired
+	public TwitterController(KafkaServiceAsync kafkaServiceAsync, KafkaService kafkaService, MongoService mongoService) {
 		this.kafkaServiceAsync = kafkaServiceAsync;
 		this.kafkaService = kafkaService;
 		this.mongoService = mongoService;

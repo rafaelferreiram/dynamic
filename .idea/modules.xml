@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$USER_HOME$/Downloads/TestesUnitarios-2/TestesUnitarios.iml" filepath="$USER_HOME$/Downloads/TestesUnitarios-2/TestesUnitarios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dynamic.command.iml" filepath="$PROJECT_DIR$/dynamic.command.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../dynamic-consumer/dynamic.consumer.iml" filepath="$PROJECT_DIR$/../dynamic-consumer/dynamic.consumer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../expenses-calculator/expenses-calculator.iml" filepath="$PROJECT_DIR$/../expenses-calculator/expenses-calculator.iml" />
+    </modules>
+  </component>
+</project>
