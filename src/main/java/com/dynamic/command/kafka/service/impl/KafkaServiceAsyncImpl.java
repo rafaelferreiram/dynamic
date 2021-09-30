@@ -15,11 +15,16 @@ import com.dynamic.command.mongo.service.MongoService;
 @Component
 public class KafkaServiceAsyncImpl implements KafkaServiceAsync {
 
-	@Autowired
 	private KafkaService service;
 
-	@Autowired
 	private MongoService mongoService;
+	
+	@Autowired
+	public KafkaServiceAsyncImpl(KafkaService service, MongoService mongoService) {
+		super();
+		this.service = service;
+		this.mongoService = mongoService;
+	}
 
 	public void send(String topic) {
 		mongoService.registryTopic(topic);
@@ -39,9 +44,7 @@ public class KafkaServiceAsyncImpl implements KafkaServiceAsync {
 
 	public boolean deactivate(String topic) {
 		TweetTopicModel topicFound = mongoService.findByTopicName(topic);
-		if (topicFound == null) {
-			return false;
-		} else if (topicFound.isDeactivated()) {
+		if (topicFound == null || topicFound.isDeactivated()) {
 			return false;
 		} else {
 			topicFound.toUpdateDeactive();

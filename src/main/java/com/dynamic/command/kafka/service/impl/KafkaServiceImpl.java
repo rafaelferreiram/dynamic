@@ -31,18 +31,14 @@ public class KafkaServiceImpl implements KafkaService {
 
 	List<String> listOfTopics = new ArrayList<String>();
 
-	@Autowired
 	private KafkaProducerConfig kafkaProducerConfig;
 
-	@Autowired
 	private TwitterClient twitterClient;
 
-	@Autowired
 	private TweetTopicMapper mapper;
 
-	@Autowired
 	private MongoService mongoService;
-
+	
 	@Value("${kafka.topic}")
 	private String kafkaTopic;
 
@@ -52,10 +48,19 @@ public class KafkaServiceImpl implements KafkaService {
 	private boolean active;
 
 	Client client;
+	
+	@Autowired
+	public KafkaServiceImpl(KafkaProducerConfig kafkaProducerConfig, TwitterClient twitterClient,
+			TweetTopicMapper mapper, MongoService mongoService) {
+		super();
+		this.kafkaProducerConfig = kafkaProducerConfig;
+		this.twitterClient = twitterClient;
+		this.mapper = mapper;
+		this.mongoService = mongoService;
+	}
 
 	public void send(String topic) {
 		listOfTopics.add(topic);
-
 		client = twitterClient.createTwitterClient(listOfTopics);
 		client.connect();
 		logger.info("Connected to Twitter client.");
